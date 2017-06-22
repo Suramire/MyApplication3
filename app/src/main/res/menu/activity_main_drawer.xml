@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_sentcount"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="发帖数："/>
+        <item
+            android:id="@+id/nav_replycount"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="回帖数："/>
+        <item
+            android:id="@+id/nav_test"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Test"/>
+    </group>
+
+    <item android:title="高级选项">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_menu_manage"
+                android:title="个人信息设置"/>
+            <item
+                android:id="@+id/nav_systemsetting"
+                android:icon="@drawable/ic_menu_send"
+                android:title="系统设置"/>
+        </menu>
+    </item>
+    <item
+        android:id="@+id/nav_signout"
+        android:icon="@drawable/ic_menu_gallery"
+        android:title="退出登录"/>
+
+</menu>
