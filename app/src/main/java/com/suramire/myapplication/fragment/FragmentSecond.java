@@ -18,8 +18,17 @@ import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.test.Student;
+import com.suramire.myapplication.util.Number;
+import com.xmut.sc.entity.Note;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -38,40 +47,38 @@ public class FragmentSecond extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_second, container, false);
         ButterKnife.bind(this, view);
-        ArrayList<Student> students = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            Student student = new Student("学生"+i,i+20);
-            students.add(student);
-        }
-//        TextView textView = new TextView(getActivity());
-//        textView.setText("没有更多内容咯");
-//        recommendListview.setEmptyView(textView);
-        adapter = new CommonAdapter<Student>(getActivity(), R.layout.item_recommend, students) {
+        final MyHandler myHandler = new MyHandler();
+        new Thread(new Runnable() {
             @Override
-            public void onUpdate(BaseAdapterHelper helper, Student item, final int position) {
-                helper.setText(R.id.recommend_textView2, item.getName());
-                helper.setText(R.id.recommend_textView5, item.getAge() + "");
-                helper.setOnClickListener(R.id.recommend_delete, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        MyHandler myHandler = new MyHandler();
+            public void run() {
+                try {
+                    String query0 = URLEncoder.encode("2", "utf-8");//设置编码
+                    URL url1 = new URL(Number.BASEURL + "bbs/Guess?query="+query0);
+                    String s = Number.BASEURL + "bbs/Guess?query="+query0;
+                    Log.d("FragmentSecond", s);
+                    HttpURLConnection urlConnection = (HttpURLConnection) url1.openConnection();
+                    ObjectInputStream objectInputStream = new ObjectInputStream(urlConnection.getInputStream());
+                    Object o = objectInputStream.readObject();//读取对象
+                    List<Note> notes = (List<Note>) o;
+                    if(notes.size()>0){
                         Message message = Message.obtain();
-                        message.arg1 = position;
+                        message.what =Number.SHOWRESULT;
+                        message.obj =notes;
                         myHandler.sendMessage(message);
                     }
-                });
-                helper.setOnClickListener(R.id.recommend_textView5, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Log.d("FragmentSecond", "t5 clicked");
 
-                    }
-                });
+
+                } catch (MalformedURLException e) {
+                    Log.e("SearchActivity", "MalformedURLException:" + e);
+                } catch (IOException e) {
+                    Log.e("SearchActivity", "IOException:" + e);
+                } catch (ClassNotFoundException e) {
+                    Log.e("SearchActivity", "ClassNotFoundException:" + e);
+                }catch (Exception e){
+                    Log.e("SearchActivity", "Exception:" + e);
+                }
             }
-        };
-
-        recommendListview.setAdapter(adapter);
-
+        }).start();
 
         return view;
     }
@@ -84,8 +91,21 @@ public class FragmentSecond extends Fragment {
     class  MyHandler extends Handler{
         @Override
         public void handleMessage(Message msg) {
-            adapter.remove(msg.arg1);
-            adapter.notifyDataSetChanged();
+            switch (msg.what){
+                case Number.SHOWRESULT:{
+                    final List<Note> notes = (List<Note>) msg.obj;
+                    recommendListview.setAdapter(new CommonAdapter<Note>(getActivity(),R.layout.item_recommend,notes) {
+                        @Override
+                        public void onUpdate(BaseAdapterHelper helper, Note item, int position) {
+                            helper.setText(R.id.recommend_type, item.getType())
+                                    .setText(R.id.recommend_textView2, item.getTitle())
+                                    .setText(R.id.recommend_textView4, item.getContent())
+                                    .setText(R.id.recommend_textView5, item.getCount() + "");
+                        }
+                    });
+                }break;
+            }
+
         }
     }
 }

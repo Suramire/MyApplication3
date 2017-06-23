@@ -18,8 +18,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.suramire.myapplication.activity.PhotoSelectActicity;
 import com.suramire.myapplication.activity.SearchActivity;
 import com.suramire.myapplication.activity.SettingsActivity;
 import com.suramire.myapplication.activity.SystemSettingsActivity;
@@ -37,6 +40,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ImageView imageView = (ImageView) findViewById(R.id.imageView);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,  WindowManager.LayoutParams.FLAG_FULLSCREEN);//全屏显示
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -58,6 +63,15 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        View view = navigationView.inflateHeaderView(R.layout.nav_header_main);
+        ImageView imageview = view.findViewById(R.id.imageView);
+        imageview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                Toast.makeText(MainActivity.this, "未登录跳转到登录界面,已登录弹出头像选择框", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(MainActivity.this, PhotoSelectActicity.class));
+            }
+        });
         navigationView.setNavigationItemSelectedListener(this);
         final Fragment fragmentindex = new FragmentIndex();
         Fragment fragment = new FragmentSecond();
@@ -157,8 +171,10 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
         } else if (id == R.id.nav_systemsetting) {
             startActivity(new Intent(MainActivity.this, SystemSettingsActivity.class));
+        }else if(id == R.id.nav_signout){
+            System.exit(0);
         }
-
+        
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

@@ -1,6 +1,10 @@
 package com.suramire.myapplication.activity;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -19,6 +23,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.suramire.myapplication.MainActivity;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.test.Student;
 import com.suramire.myapplication.util.FileUtil;
@@ -40,7 +45,6 @@ import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -65,6 +69,8 @@ public class TestActivity extends AppCompatActivity {
     Button button5;
     @Bind(R.id.button9)
     Button button9;
+    @Bind(R.id.button8)
+    Button button8;
     private TextView textView;
 
     @Override
@@ -89,13 +95,14 @@ public class TestActivity extends AppCompatActivity {
     public void click1(View view) {
         final MyHandler myHandler = new MyHandler();
         Log.d("TestActivity", getIp());
-        final Student student = new Student("王五", 30);
-        Log.d("TestActivity", "student:" + student);
+//        final Student student = new Student("王五", 30);
+//        Log.d("TestActivity", "student:" + student);
         //介绍服务器响应结果
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String url = Number.URL0;
+                Log.d("TestActivity", url);
                 JSONArray jsonArray = JsonUtil.getJSONArray(url);
                 Message message = Message.obtain();
                 message.what = Number.SHOWJSONARRAY;
@@ -169,6 +176,7 @@ public class TestActivity extends AppCompatActivity {
 
 
     }
+
     //从服务器读取一张图片并显示
     @OnClick(R.id.button9)
     public void onViewClicked() {
@@ -176,11 +184,9 @@ public class TestActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String url = Number.BASEURL+"bbs/upload/test.bmp";
-                Log.d("TestActivity", url);
+                String url = Number.BASEURL + "bbs/upload/test.bmp";
                 try {
                     URL url1 = new URL(url);
-
                     HttpURLConnection urlConnection = (HttpURLConnection) url1.openConnection();
                     if (true) {
                         InputStream mInputStream = urlConnection.getInputStream();
@@ -190,10 +196,8 @@ public class TestActivity extends AppCompatActivity {
                         Message message = Message.obtain();
                         message.what = Number.SHOWIMAGE;
                         message.obj = bitmap;
-
                         myHandler.sendMessage(message);
-
-                    }else {
+                    } else {
                         Log.e("JsonUtil", "连接失败");
                     }
                 } catch (MalformedURLException e) {
@@ -201,11 +205,12 @@ public class TestActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
         }).start();
 
     }
+
+
 
     class MyHandler extends Handler {
         @Override
@@ -235,11 +240,12 @@ public class TestActivity extends AppCompatActivity {
 
                 }
                 break;
-                case Number.SHOWIMAGE:{
+                case Number.SHOWIMAGE: {
                     Bitmap bitmap = (Bitmap) msg.obj;
                     imageView3.setImageBitmap(bitmap);
                     writeToSDCard(bitmap);
-                }break;
+                }
+                break;
             }
         }
     }
@@ -295,6 +301,20 @@ public class TestActivity extends AppCompatActivity {
             }
         }
         return fileName;
+    }
+    public void click8(View view){
+        NotificationManager notificationManager =(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification.Builder builder = new Notification.Builder(TestActivity.this);
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent,0);
+        builder.setSmallIcon(R.drawable.ic_menu_camera)
+                .setTicker("收到一条新通知")
+                .setContentTitle("标题")
+                .setContentText("这是正文内容")
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setContentIntent(pendingIntent);
+        notificationManager.notify(0x233,builder.build());
+
     }
 
 }
