@@ -5,10 +5,18 @@
               android:layout_height="match_parent">
 
 
+    <TextView
+        android:id="@+id/recommend_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="登录以便推荐内容"
+        android:textSize="18sp"
+        android:visibility="gone"/>
 
     <ListView
         android:id="@+id/recommend_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
 
 </LinearLayout>

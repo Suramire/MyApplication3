@@ -59,6 +59,7 @@ public class SearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         ButterKnife.bind(this);
+        Log.d("SearchActivity", "Constant.isLogin:" + Constant.isLogin);
         ArrayList<String> strings = new ArrayList<>();
         strings.add("啦啦啦");
         strings.add("UC");

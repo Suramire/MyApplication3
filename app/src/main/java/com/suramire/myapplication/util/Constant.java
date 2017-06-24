@@ -16,6 +16,11 @@ public class Constant {
     public final static String BASEURL = "http://10.0.2.2:8080/";
 //    public final static String BASEURL = "http://192.168.1.102:8080/";
     public final static String URL0 = BASEURL+"bbs/Login";
-    public final static String PICTUREPATH = Environment.getExternalStorageDirectory() + "/bbs_head/";
+    public final static String URLGUESS = BASEURL+"bbs/Guess";
 
+    public final static String PICTUREPATH = Environment.getExternalStorageDirectory() + "/bbs_head/";
+    public final  static  String DBNAME = "localuser.db";//本地数据库名
+    public final  static  String TABLENAME = "user";//本地数据表名
+    public  static boolean isLogin = false;
+    public static String userName = "";
 }

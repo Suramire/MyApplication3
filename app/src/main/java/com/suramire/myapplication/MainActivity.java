@@ -2,6 +2,9 @@ package com.suramire.myapplication;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,6 +29,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.suramire.myapplication.activity.PhotoSelectActicity;
@@ -36,6 +40,8 @@ import com.suramire.myapplication.activity.TestActivity;
 import com.suramire.myapplication.fragment.FragmentIndex;
 import com.suramire.myapplication.fragment.FragmentNotification;
 import com.suramire.myapplication.fragment.FragmentRecommend;
+import com.suramire.myapplication.util.Constant;
+import com.suramire.myapplication.util.MyDataBase;
 
 import java.util.ArrayList;
 
@@ -45,6 +51,23 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //先判断是否登录
+        MyDataBase myDataBase = new MyDataBase(this,null);
+//        long hello = myDataBase.insert("user");
+//        Log.d("MainActivity", "hello:" + hello);
+
+//        int delete = myDataBase.delete();
+//        Log.d("MainActivity", "delete:" + delete);
+        Cursor cursor = myDataBase.selectAll();
+        int count =  cursor.getCount();
+        if(count>0){
+            Constant.isLogin = true;
+            while (cursor.moveToNext()){
+                Constant.userName = cursor.getString(cursor.getColumnIndex("username"));
+            }
+        }
+        Log.d("MainActivity", "myDataBase.selectAll().getCount():" + count);
+        myDataBase.close();
 //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 //        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 //                this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
@@ -75,8 +98,13 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View view = navigationView.inflateHeaderView(R.layout.nav_header_main);
+        TextView textView =  view.findViewById(R.id.index_username_tv);
         ImageView imageview = view.findViewById(R.id.imageView);
-
+        if(Constant.isLogin){
+            Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH + "username.png");
+            imageview.setImageBitmap(bitmap);
+            textView.setText(Constant.userName);
+        }
         imageview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
