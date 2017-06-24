@@ -1,12 +1,16 @@
 package com.suramire.myapplication;
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +22,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -29,7 +35,7 @@ import com.suramire.myapplication.activity.SystemSettingsActivity;
 import com.suramire.myapplication.activity.TestActivity;
 import com.suramire.myapplication.fragment.FragmentIndex;
 import com.suramire.myapplication.fragment.FragmentNotification;
-import com.suramire.myapplication.fragment.FragmentSecond;
+import com.suramire.myapplication.fragment.FragmentRecommend;
 
 import java.util.ArrayList;
 
@@ -39,12 +45,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//                this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+//        );
         setContentView(R.layout.activity_main);
-        ImageView imageView = (ImageView) findViewById(R.id.imageView);
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,  WindowManager.LayoutParams.FLAG_FULLSCREEN);//全屏显示
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+//        getWindow().setStatusBarColor(Color.TRANSPARENT);// SDK21
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -55,16 +64,19 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(MainActivity.this, "这里响应发帖操作", Toast.LENGTH_SHORT).show();
             }
         });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
+//        toggle.setDrawerIndicatorEnabled(false);
+
+
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View view = navigationView.inflateHeaderView(R.layout.nav_header_main);
         ImageView imageview = view.findViewById(R.id.imageView);
+
         imageview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -74,7 +86,7 @@ public class MainActivity extends AppCompatActivity
         });
         navigationView.setNavigationItemSelectedListener(this);
         final Fragment fragmentindex = new FragmentIndex();
-        Fragment fragment = new FragmentSecond();
+        Fragment fragment = new FragmentRecommend();
         Fragment fragment3 = new FragmentNotification();
         final ArrayList<Fragment> fragments = new ArrayList<>();
         fragments.add(fragmentindex);
@@ -179,4 +191,6 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 }

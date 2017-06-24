@@ -20,10 +20,8 @@ import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
 import com.classic.adapter.CommonRecyclerAdapter;
 import com.suramire.myapplication.R;
-import com.suramire.myapplication.base.BaseActivity;
-import com.suramire.myapplication.base.BaseFullScreenActivity;
 import com.suramire.myapplication.test.Student;
-import com.suramire.myapplication.util.Number;
+import com.suramire.myapplication.util.Constant;
 import com.xmut.sc.entity.Note;
 
 import java.io.IOException;
@@ -149,8 +147,8 @@ public class SearchActivity extends AppCompatActivity {
     public void searchBySomething(String query, MyHandler myHandler) {
         try {
             String query0 = URLEncoder.encode(query, "utf-8");//设置编码
-            URL url1 = new URL(Number.BASEURL + "bbs/GetResult?query=" + query0);
-            String s = Number.BASEURL + "bbs/GetResult?query=" + query;
+            URL url1 = new URL(Constant.BASEURL + "bbs/GetResult?query=" + query0);
+            String s = Constant.BASEURL + "bbs/GetResult?query=" + query;
             Log.d("SearchActivity", s);
             HttpURLConnection urlConnection = (HttpURLConnection) url1.openConnection();
             ObjectInputStream objectInputStream = new ObjectInputStream(urlConnection.getInputStream());
@@ -159,11 +157,11 @@ public class SearchActivity extends AppCompatActivity {
             Message message = Message.obtain();
             if (notes.size() > 0) {
                 Log.d("SearchActivity", "notes.size():" + notes.size());
-                message.what = Number.SHOWRESULT;
+                message.what = Constant.SHOWRESULT;
                 message.obj = notes;
 
             }else{
-                message.what = Number.SHOWNOTHING;
+                message.what = Constant.SHOWNOTHING;
 //                message.obj = notes;
             }
             myHandler.sendMessage(message);
@@ -183,7 +181,7 @@ public class SearchActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case Number.SHOWRESULT: {
+                case Constant.SHOWRESULT: {
                     List<Note> notes = (List<Note>) msg.obj;
 
                         Log.d("MyHandler", "adapter.getCount():" + adapter.getCount());
@@ -204,7 +202,7 @@ public class SearchActivity extends AppCompatActivity {
                         getSupportActionBar().setTitle("搜索结果");
                 }
                 break;
-                case Number.SHOWNOTHING:{
+                case Constant.SHOWNOTHING:{
                     initListView();
 
                     Toast.makeText(SearchActivity.this, "未找到符合条件的结果", Toast.LENGTH_SHORT).show();

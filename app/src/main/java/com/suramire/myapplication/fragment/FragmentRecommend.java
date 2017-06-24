@@ -9,16 +9,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.test.Student;
-import com.suramire.myapplication.util.Number;
+import com.suramire.myapplication.util.Constant;
 import com.xmut.sc.entity.Note;
 
 import java.io.IOException;
@@ -27,7 +24,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -37,7 +33,7 @@ import butterknife.ButterKnife;
  * Created by Suramire on 2017/6/20.
  */
 
-public class FragmentSecond extends Fragment {
+public class FragmentRecommend extends Fragment {
     @Bind(R.id.recommend_listview)
     ListView recommendListview;
     private CommonAdapter<Student> adapter;
@@ -53,16 +49,16 @@ public class FragmentSecond extends Fragment {
             public void run() {
                 try {
                     String query0 = URLEncoder.encode("2", "utf-8");//设置编码
-                    URL url1 = new URL(Number.BASEURL + "bbs/Guess?query="+query0);
-                    String s = Number.BASEURL + "bbs/Guess?query="+query0;
-                    Log.d("FragmentSecond", s);
+                    URL url1 = new URL(Constant.BASEURL + "bbs/Guess?query="+query0);
+                    String s = Constant.BASEURL + "bbs/Guess?query="+query0;
+                    Log.d("FragmentRecommend", s);
                     HttpURLConnection urlConnection = (HttpURLConnection) url1.openConnection();
                     ObjectInputStream objectInputStream = new ObjectInputStream(urlConnection.getInputStream());
                     Object o = objectInputStream.readObject();//读取对象
                     List<Note> notes = (List<Note>) o;
                     if(notes.size()>0){
                         Message message = Message.obtain();
-                        message.what =Number.SHOWRESULT;
+                        message.what = Constant.SHOWRESULT;
                         message.obj =notes;
                         myHandler.sendMessage(message);
                     }
@@ -92,7 +88,7 @@ public class FragmentSecond extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what){
-                case Number.SHOWRESULT:{
+                case Constant.SHOWRESULT:{
                     final List<Note> notes = (List<Note>) msg.obj;
                     recommendListview.setAdapter(new CommonAdapter<Note>(getActivity(),R.layout.item_recommend,notes) {
                         @Override

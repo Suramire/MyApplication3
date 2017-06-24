@@ -9,6 +9,7 @@ import com.youth.banner.loader.ImageLoader;
 
 /**
  * Created by Suramire on 2017/6/23.
+ * 轮播图图片加载方式
  */
 
 public class GlideImageLoader extends ImageLoader {

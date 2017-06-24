@@ -28,10 +28,21 @@ dependencies {
     compile 'com.android.support:design:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
-    compile 'com.classic.adapter:commonadapter:1.8.1'//简单适配器
-    compile 'com.jakewharton:butterknife:7.0.1'//黄油刀
-    compile 'com.youth.banner:banner:1.4.9'//轮播图
-    compile 'com.squareup.picasso:picasso:2.5.2'//图片加载
-    compile 'me.iwf.photopicker:PhotoPicker:0.9.5@aar'//图片选择器
+    compile 'com.classic.adapter:commonadapter:1.8.1'
+    //简单适配器
+    compile 'com.jakewharton:butterknife:7.0.1'
+    //黄油刀
+    compile 'com.youth.banner:banner:1.4.9'
+    //轮播图
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    //图片加载
+    compile 'me.iwf.photopicker:PhotoPicker:0.9.5@aar'
+    //图片选择器
     compile 'com.github.bumptech.glide:glide:3.6.1'
+    //图片选择器中的图片加载
+    compile 'com.squareup.okhttp:okhttp:2.6.0'
+    //HTTP请求
+    compile 'com.google.code.gson:gson:2.8.1'
+    //JSON相关
+    compile 'com.github.ksoichiro:android-observablescrollview:1.6.0'
 }

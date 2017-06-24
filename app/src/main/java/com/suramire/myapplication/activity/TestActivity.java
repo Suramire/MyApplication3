@@ -12,9 +12,6 @@ import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -23,32 +20,35 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.GsonBuilder;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 import com.suramire.myapplication.MainActivity;
 import com.suramire.myapplication.R;
-import com.suramire.myapplication.test.Student;
 import com.suramire.myapplication.util.FileUtil;
 import com.suramire.myapplication.util.JsonUtil;
-import com.suramire.myapplication.util.Number;
+import com.suramire.myapplication.util.Constant;
+import com.xmut.sc.entity.Note;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
 
 
 /**
@@ -72,183 +72,202 @@ public class TestActivity extends AppCompatActivity {
     @Bind(R.id.button8)
     Button button8;
     private TextView textView;
+    private OkHttpClient okHttpClient;
+    private Request.Builder builder;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
         ButterKnife.bind(this);
+        okHttpClient = new OkHttpClient();
+        builder = new Request.Builder();
         textView = (TextView) findViewById(R.id.test_textview);
-
         Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/myHead/head.jpg");
         imageView3.setImageBitmap(bitmap);
-        imageView3.setOnClickListener(new View.OnClickListener() {
+    }
+
+    //接收JSON数据（JSONArray）并显示
+    //使用OKHTTP实现
+    public void click1(View view) {
+        Log.d("ip:", getIp());
+        final Request request = builder.get().url(Constant.URL0+"?hello=233").build();
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
             @Override
-            public void onClick(View view) {
-                Log.d("TestActivity", "imageView3");
-                // TODO: 2017/6/22  显示图片选择框，将选中的图片显示在imageview中
+            public void onFailure(Request request, IOException e) {
+                Log.d("TestActivity", "onFailure");
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                //请求成功时
+                final String string = response.body().string();
+                if(!string.isEmpty()){
+                    List<Note> jsonList = JsonUtil.getJsonList(string,Note.class);
+                    Log.d("TestActivity", jsonList.size()+"");
+                    String mString = "";
+                    for (Note note :
+                            jsonList) {
+                        mString +=note.getContent()+"\n";
+                    }
+                    //在主线程更新UI
+                    final String finalMString = mString;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            testTextview.setText(finalMString);
+                        }
+                    });
+                }else{
+                    Log.e("TestActivity", "response is empty");
+                }
             }
         });
     }
 
-    //接收JSON数据（JSONArray）并显示
-    public void click1(View view) {
-        final MyHandler myHandler = new MyHandler();
-        Log.d("TestActivity", getIp());
-//        final Student student = new Student("王五", 30);
-//        Log.d("TestActivity", "student:" + student);
-        //介绍服务器响应结果
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String url = Number.URL0;
-                Log.d("TestActivity", url);
-                JSONArray jsonArray = JsonUtil.getJSONArray(url);
-                Message message = Message.obtain();
-                message.what = Number.SHOWJSONARRAY;
-                message.obj = jsonArray;
-                myHandler.sendMessage(message);
-            }
-        }).start();
-    }
-
     //向服务器发送对象并接收服务器返回的结果
     public void click3(View view) {
-        new Thread(new Runnable() {
 
-            private HttpURLConnection urlConnection;
-            private ObjectOutputStream objectOutputStream;
-            private BufferedReader bufferedReader;
-
-            @Override
-            public void run() {
-                //发送对象并接收结果
-                Log.e("TestActivity", "running");
-                String url = Number.URL0;
-                StringBuffer sb = new StringBuffer();
-                try {
-                    URL url1 = new URL(url);//将URL字符串转成
-                    urlConnection = (HttpURLConnection) url1.openConnection();//发送http请求
-                    urlConnection.setDoOutput(true);
-                    urlConnection.setConnectTimeout(5 * 1000);
-                    urlConnection.setReadTimeout(10 * 1000);
-                    urlConnection.setRequestMethod("POST");//请求的方法为POST
-                    objectOutputStream = new ObjectOutputStream(urlConnection.getOutputStream());
-                    Student student = new Student("赵", 12);
-                    objectOutputStream.writeObject(student);//发送studeny对象给服务器
-                    InputStreamReader reader = new InputStreamReader(urlConnection.getInputStream());
-                    bufferedReader = new BufferedReader(reader);
-                    String line = "";
-                    while ((line = bufferedReader.readLine()) != null) {
-                        sb.append(line);//从缓冲中读取服务器返回的结果
-                    }
-
-                } catch (MalformedURLException e) {
-                    Log.e("TestActivity", "MalformedURLException:" + e);
-                } catch (IOException e) {
-                    Log.e("TestActivity", "IOException:" + e);
-                } catch (Exception e) {
-                    Log.e("TestActivity", "Exception:" + e);
-
-                } finally {
-                    Log.e("TestActivity", "sb:" + sb.toString());
-                    Log.e("TestActivity", "finish");
+        try {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date date;
+            date = simpleDateFormat.parse("2017-1-1");
+            Note note = new Note(10,"","这是标题3","这是内容3",date ,10,date,"1","标签",date,true);
+            Note note2 = new Note(11,"","这是标题4","这是内容4",date ,10,date,"1","标签",date,true);
+            List<Note> notes = new ArrayList<>();
+            notes.add(note);
+            notes.add(note2);
+            String s = new GsonBuilder().setPrettyPrinting().create().toJson(notes);
+            RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain;chaset=utf-8"), s);
+            Request request = builder.url(Constant.URL0).post(requestBody).build();
+            Call call = okHttpClient.newCall(request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+                    Log.d("TestActivity", "onFailure");
                 }
 
-            }
-        }).start();
+                @Override
+                public void onResponse(Response response) throws IOException {
+                    //请求成功时
+                    final String string = response.body().string();
+                    if(!string.isEmpty()){
+                        List<Note> jsonList = JsonUtil.getJsonList(string,Note.class);
+                        Log.d("TestActivity", jsonList.size()+"");
+                        String mString = "";
+                        for (Note note :
+                                jsonList) {
+                            mString +=note.getContent()+"\n";
+                        }
+                        //在主线程更新UI
+                        final String finalMString = mString;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                testTextview.setText(finalMString);
+                            }
+                        });
+                    }else{
+                        Log.e("TestActivity", "response is empty");
+                    }
+                }
+            });
+            Log.d("TestActivity", s);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     //上传头像至服务器
     public void click4(View view) {
+        Log.d("ip:", getIp());
         Drawable drawable = imageView3.getDrawable();//从imageview中获取drawable图片
         Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();//将drawable图片转成bitmap
-        String s = writeToSDCard(bitmap);//将图片存入sd卡获取图片保存的路径
-        imageView3.setImageBitmap(bitmap);
-        final byte[] bytes = FileUtil.getBytes(s);//将根据图片路径将图片转成字节数组，方便存入服务器
-        new Thread(new Runnable() {
+        String s = FileUtil.writeToSDCard(bitmap,"username.png");//将图片存入sd卡获取图片保存的路径
+        File file = new File(s);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/octet-stream"),file );
+        //post方式上传头像 参数放在url
+        Request request = builder.url(Constant.URL0+"?username=username.png").post(requestBody).build();
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
             @Override
-            public void run() {
-                String s1 = FileUtil.sendSomething(Number.URL0, bytes);//发送字节数组给服务器
-                Log.d("TestActivity", s1);
+            public void onFailure(Request request, IOException e) {
+                Log.d("TestActivity", "click3onFailure");
             }
-        }).start();
 
+            @Override
+            public void onResponse(Response response) throws IOException {
+                //请求成功时
+                final String string = response.body().string();
+                if(!string.isEmpty()){
+                    List<Note> jsonList = JsonUtil.getJsonList(string,Note.class);
+                    Log.d("TestActivity", jsonList.size()+"");
+                    String mString = "";
+                    for (Note note :
+                            jsonList) {
+                        mString +=note.getContent()+"\n";
+                    }
+                    //在主线程更新UI
+                    final String finalMString = mString;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            testTextview.setText(finalMString);
+                        }
+                    });
+                }else{
+                    Log.e("TestActivity", "response is empty");
+                }
+            }
+        });
 
     }
 
     //从服务器读取一张图片并显示
     @OnClick(R.id.button9)
     public void onViewClicked() {
-        final MyHandler myHandler = new MyHandler();
-        new Thread(new Runnable() {
+        Log.d("ip:", getIp());
+        //post方式上传头像 参数放在url
+        Request request = builder.url(Constant.BASEURL+"bbs/upload/username.png").get().build();
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
             @Override
-            public void run() {
-                String url = Number.BASEURL + "bbs/upload/test.bmp";
-                try {
-                    URL url1 = new URL(url);
-                    HttpURLConnection urlConnection = (HttpURLConnection) url1.openConnection();
-                    if (true) {
-                        InputStream mInputStream = urlConnection.getInputStream();
-                        byte[] bytes = new byte[mInputStream.available()];
-                        mInputStream.read(bytes);
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        Message message = Message.obtain();
-                        message.what = Number.SHOWIMAGE;
-                        message.obj = bitmap;
-                        myHandler.sendMessage(message);
-                    } else {
-                        Log.e("JsonUtil", "连接失败");
-                    }
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            public void onFailure(Request request, IOException e) {
+                Log.d("TestActivity", "click3onFailure");
             }
-        }).start();
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                //请求成功时
+                InputStream inputStream = response.body().byteStream();
+                File file = new File(Constant.PICTUREPATH,"username.png");
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                byte[] buffer = new byte[1024];
+                int len =0;
+                while ((len=inputStream.read(buffer))!=-1){
+                    fileOutputStream.write(buffer,0,len);
+                }
+                fileOutputStream.flush();
+                fileOutputStream.close();
+                inputStream.close();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH +"username.png");
+                        imageView3.setImageBitmap(bitmap);
+                    }
+                });
+            }
+        });
 
     }
 
 
 
-    class MyHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
 
-            switch (msg.what) {
-                case Number.SHOWJSONARRAY: {
-                    if (msg.obj != null) {
-                        JSONArray obj = (JSONArray) msg.obj;
-                        if (obj.length() > 0) {
-                            String s = "";
-                            for (int i = 0; i < obj.length(); i++) {
-                                try {
-                                    JSONObject jsonObject = obj.getJSONObject(i);
-                                    s += "name:" + jsonObject.getString("name") + "age:" + jsonObject.getInt("age") + "\n";
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            textView.setText(s);
-                        } else {
-                            textView.setText("没有找到");
-                        }
-                    } else {
-                        textView.setText("没有找到");
-                    }
-
-                }
-                break;
-                case Number.SHOWIMAGE: {
-                    Bitmap bitmap = (Bitmap) msg.obj;
-                    imageView3.setImageBitmap(bitmap);
-                    writeToSDCard(bitmap);
-                }
-                break;
-            }
-        }
-    }
 
     public String getIp() {
         //获取wifi服务
@@ -270,38 +289,6 @@ public class TestActivity extends AppCompatActivity {
                 (i >> 24 & 0xFF);
     }
 
-    /**
-     * 将bitmap图片写入SD卡
-     *
-     * @param mBitmap
-     * @return 写入的文件路径 为空则表示写入失败
-     */
-    private String writeToSDCard(Bitmap mBitmap) {
-        String path = "/sdcard/myHead/";// sd路径
-        String sdStatus = Environment.getExternalStorageState();
-        if (!sdStatus.equals(Environment.MEDIA_MOUNTED)) { // 检测sd是否可用
-            return "";
-        }
-        FileOutputStream b = null;
-        File file = new File(path);
-        file.mkdirs();// 创建文件夹
-        String fileName = path + "head.jpg";// 图片名字
-        try {
-            b = new FileOutputStream(fileName);
-            mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, b);// 把数据写入文件
-        } catch (FileNotFoundException e) {
-            Log.d("TestActivity", "e:" + e);
-        } finally {
-            try {
-                // 关闭流
-                b.flush();
-                b.close();
-            } catch (IOException e) {
-                Log.d("TestActivity", "e:" + e);
-            }
-        }
-        return fileName;
-    }
     public void click8(View view){
         NotificationManager notificationManager =(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         Notification.Builder builder = new Notification.Builder(TestActivity.this);
