@@ -6,30 +6,19 @@
               android:layout_height="match_parent"
               android:weightSum="1">
 
-    <TextView
-        android:id="@+id/textView6"
+    <com.github.ksoichiro.android.observablescrollview.ObservableListView
+        android:id="@+id/detail_listview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="这里显示帖子标题"
-        android:textSize="30sp"
         />
 
     <TextView
-        android:id="@+id/textView7"
+        android:id="@+id/detail_empty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.60"
-        android:text="这里显示帖子内容"/>
+        android:text="列表为空"
+        android:textSize="30sp"
+        android:visibility="gone"
+        />
 
-    <TextView
-        android:id="@+id/textView8"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="这里显示帖子的类别（标签）"/>
-
-    <TextView
-        android:id="@+id/textView9"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="以下部分显示帖子回复"/>
 </LinearLayout>

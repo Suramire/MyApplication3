@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/names"
+        android:layout_weight="1"/>
+
+    <EditText
+        android:id="@+id/receive_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ems="10"
+        android:gravity="top"
+        android:hint="随便说点什么吧"
+        android:inputType="textMultiLine"
+        android:maxLines="10"
+        android:minLines="3"/>
+
+</LinearLayout>

@@ -303,5 +303,16 @@ public class TestActivity extends AppCompatActivity {
         notificationManager.notify(0x233,builder.build());
 
     }
+    public void click0(View view){
+        FileUtil.WriteObjectToFile(Constant.notes);
+    }
+    public void click11(View view){
+        List<Note> o = (List<Note>) FileUtil.ReadObjectFromFile();
+        Log.d("TestActivity", "o.size():" + o.size());
+        for (Note n :
+                o) {
+            Log.d("TestActivity", n.getContent());
+        }
+    }
 
 }

@@ -7,4 +7,8 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="action_settings">Settings</string>
+    <string-array name="names">
+        <item>你的名字</item>
+        <item>匿名用户</item>
+    </string-array>
 </resources>

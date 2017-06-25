@@ -6,12 +6,6 @@
               >
 
 
-    <com.youth.banner.Banner
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/banner"
-        android:layout_width="match_parent"
-        android:layout_height="150dp" />
-
     <android.support.v4.widget.SwipeRefreshLayout
     android:id="@+id/swiperefreshlayout"
     android:layout_width="match_parent"

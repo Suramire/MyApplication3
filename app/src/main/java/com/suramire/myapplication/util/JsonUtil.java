@@ -1,8 +1,5 @@
 package com.suramire.myapplication.util;
 
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -10,9 +7,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
-import com.suramire.myapplication.view.MyViewPager;
-import com.xmut.sc.entity.Note;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -114,10 +108,15 @@ public class JsonUtil {
     public static  <T> List<T> getJsonList(String jsonString, final Class<T> tClass ){
         Gson gson = new Gson();
         List<T> list = new ArrayList<T>();
-        JsonArray array = new JsonParser().parse(jsonString).getAsJsonArray();
-        for(final JsonElement elem : array){
-            list.add(gson.fromJson(elem, tClass));
+        try{
+            JsonArray array = new JsonParser().parse(jsonString).getAsJsonArray();
+            for(final JsonElement elem : array){
+                list.add(gson.fromJson(elem, tClass));
+            }
+        }catch (Exception e){
+            Log.e("JsonUtil", "getJsonList: "+e);
         }
+
         return list;
     }
 
@@ -131,5 +130,15 @@ public class JsonUtil {
         return new GsonBuilder().setPrettyPrinting().create().toJson(lists);
     }
 
+    /**
+     * 根据对象获取JSON字符串
+     * @param object 目标对象
+     * @return JSON字符串
+     */
+    public static String getJsonString(Object object){
+        Gson gson = new Gson();
+        String s = gson.toJson(object);
+        return  s;
+    }
 
 }

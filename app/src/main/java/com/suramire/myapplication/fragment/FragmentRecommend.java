@@ -29,11 +29,6 @@ import com.suramire.myapplication.util.JsonUtil;
 import com.xmut.sc.entity.Note;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.List;
 
 import butterknife.Bind;
@@ -54,11 +49,13 @@ public class FragmentRecommend extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d("FragmentRecommend", "Constant.isLogin:" + Constant.isLogin);
         Log.d(TAG, "onCreateView: ");
         View view = inflater.inflate(R.layout.activity_recommned, container, false);
         ButterKnife.bind(this, view);
         recommendListview.setEmptyView(recommendEmpty);
         if (Constant.isLogin) {
+            Log.d(TAG, "isLogin: ");
             // TODO: 2017/6/24 首先获取该用户的浏览记录,得知其常访问的帖子类型,根据类型进行推送
 //            final MyHandler myHandler = new MyHandler();
 //            new Thread(new Runnable() {

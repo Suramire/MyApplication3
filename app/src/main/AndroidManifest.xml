@@ -27,7 +27,7 @@
         </activity>
         <activity android:name=".test.TestRecyclerView"/>
 
-        <activity android:name=".NoteDetail"/>
+        <activity android:name=".activity.NoteDetailActivity"/>
         <activity android:name=".activity.SearchActivity"/>
         <activity android:name=".activity.SettingsActivity"/>
         <activity android:name=".activity.TestActivity"/>
@@ -40,6 +40,7 @@
         <activity android:name="me.iwf.photopicker.PhotoPagerActivity"
                   android:theme="@style/Theme.AppCompat.NoActionBar"/>
         <service android:name=".service.PostService"/>
+        <activity android:name=".activity.ReceiveActivity"/>
     </application>
 
 </manifest>

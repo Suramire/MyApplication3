@@ -56,4 +56,18 @@
         android:onClick="click8"
         android:text="显示通知"/>
 
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="click0"
+        android:text="将对象存入文件"/>
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="click11"
+        android:text="从文件读取对象"/>
+
 </LinearLayout>

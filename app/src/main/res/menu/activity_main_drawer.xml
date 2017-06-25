@@ -28,9 +28,14 @@
                 android:title="系统设置"/>
         </menu>
     </item>
+
     <item
         android:id="@+id/nav_signout"
         android:icon="@drawable/ic_menu_gallery"
-        android:title="退出登录"/>
+        android:title="注销登录"/>
+    <item
+        android:id="@+id/nav_quit"
+        android:icon="@drawable/ic_menu_gallery"
+        android:title="退出系统"/>
 
 </menu>

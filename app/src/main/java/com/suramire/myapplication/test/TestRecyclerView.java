@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonRecyclerAdapter;
@@ -31,7 +30,7 @@ public class TestRecyclerView extends AppCompatActivity {
         recyclerView.setAdapter(new CommonRecyclerAdapter<String>(TestRecyclerView.this,R.layout.item_index,items) {
             @Override
             public void onUpdate(BaseAdapterHelper helper, String item, int position) {
-                helper.setText(R.id.textView2, item);
+                helper.setText(R.id.index_title, item);
             }
         });
 

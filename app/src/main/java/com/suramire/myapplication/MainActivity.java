@@ -1,33 +1,26 @@
 package com.suramire.myapplication;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,14 +38,16 @@ import com.suramire.myapplication.util.MyDataBase;
 
 import java.util.ArrayList;
 
+import static com.suramire.myapplication.util.Constant.userName;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //先判断是否登录
-        MyDataBase myDataBase = new MyDataBase(this,null);
+        //todo 先判断是否登录
+        MyDataBase myDataBase = new MyDataBase(this);
 //        long hello = myDataBase.insert("user");
 //        Log.d("MainActivity", "hello:" + hello);
 
@@ -63,7 +58,8 @@ public class MainActivity extends AppCompatActivity
         if(count>0){
             Constant.isLogin = true;
             while (cursor.moveToNext()){
-                Constant.userName = cursor.getString(cursor.getColumnIndex("username"));
+                userName = cursor.getString(cursor.getColumnIndex("username"));
+                Log.d("MainActivity", userName);
             }
         }
         Log.d("MainActivity", "myDataBase.selectAll().getCount():" + count);
@@ -93,7 +89,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
 //        toggle.setDrawerIndicatorEnabled(false);
 
-
+// TODO: 2017/6/25 只查询分享的帖子
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -103,7 +99,7 @@ public class MainActivity extends AppCompatActivity
         if(Constant.isLogin){
             Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH + "username.png");
             imageview.setImageBitmap(bitmap);
-            textView.setText(Constant.userName);
+            textView.setText(userName);
         }
         imageview.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -212,6 +208,12 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_systemsetting) {
             startActivity(new Intent(MainActivity.this, SystemSettingsActivity.class));
         }else if(id == R.id.nav_signout){
+            new MyDataBase(this).delete();
+            Constant.isDestory = true;
+            Intent  intent = getIntent();
+            finish();
+            startActivity(intent);
+        }else if(id ==R.id.nav_quit){
             System.exit(0);
         }
         

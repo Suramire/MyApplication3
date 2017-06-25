@@ -15,8 +15,8 @@ public class MyDataBase extends SQLiteOpenHelper {
     private String tableName = Constant.TABLENAME;
 
 
-    public MyDataBase(Context context, SQLiteDatabase.CursorFactory factory) {
-        super(context, Constant.DBNAME, factory, 1);
+    public MyDataBase(Context context) {
+        super(context, Constant.DBNAME, null, 1);
         mydb = getWritableDatabase();
     }
 

@@ -5,9 +5,14 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Suramire on 2017/6/22.
@@ -46,5 +51,49 @@ public class FileUtil {
             }
         }
         return fileName;
+    }
+
+    /**
+     * 获取模拟数据
+     * @param number 数量
+     * @return
+     */
+    public static List<String> getStrings(int number){
+        List<String> list = new ArrayList<>();
+        if(number>=1){
+            for (int i = 0; i < number; i++) {
+                list.add("new data "+i);
+            }
+        }
+        return  list;
+    }
+
+    public static void WriteObjectToFile(Object object){
+        // TODO: 2017/6/25  写入文件之前先删除之前的文件
+        try {
+            FileOutputStream fos = new FileOutputStream(Constant.PICTUREPATH+"temp.dat");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(object);
+            oos.close();
+            fos.close();
+        } catch (IOException e) {
+            Log.e("FileUtil", "e:" + e);
+        }
+    }
+    public static Object ReadObjectFromFile(){
+        Object o = null;
+        try {
+            FileInputStream fis = new FileInputStream(Constant.PICTUREPATH+"temp.dat");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+             o = ois.readObject();
+            ois.close();
+            fis.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return o;
     }
 }
