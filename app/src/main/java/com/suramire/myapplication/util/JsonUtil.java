@@ -8,15 +8,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,72 +22,19 @@ import java.util.List;
 
 
 public class JsonUtil {
-
     /**
-     * 根据url地址获取JSONObject
-     *
-     * @param url 提交的URL IP:端口/项目名/Servlet名?参数
-     * @return 目标JSONObject
+     * 根据json字符串转成单个对象
+     * @param jsonString
+     * @param tClass 目标对象的类型
+     * @param <T>
+     * @return
      */
-    public static JSONObject getJSONObject(final String url) {
-        JSONObject mJSONObject = null;
-        try {
-            URL mURL = new URL(url);
-            HttpURLConnection mHttpURLConnection = (HttpURLConnection) mURL.openConnection();
-            if (true) {
-                InputStream mInputStream = mHttpURLConnection.getInputStream();
-                byte[] bytes = new byte[mInputStream.available()];
-                mInputStream.read(bytes);
-                String mJSONString = new String(bytes);
-                mJSONObject = new JSONObject(mJSONString);
-            } else {
-                Log.e("JsonUtil", "连接失败");
-            }
-            mHttpURLConnection.disconnect();
-        }catch (MalformedURLException e) {
-            Log.e("JsonUtil", "MalformedURLException:" + e);
-        } catch (IOException e) {
-            Log.e("JsonUtil", "IOException:" + e);
-        } catch (JSONException e) {
-            Log.e("JsonUtil", "JSONException:" + e);
-        }catch (Exception e){
-            Log.e("JsonUtil", "Exception:" + e);
-        }
-        return mJSONObject;
-    }
+   public static <T>Object jsonToObject(String jsonString, Class<T> tClass ){
+       Gson gson = new Gson();
+       T t = gson.fromJson(jsonString, tClass);
+       return t;
+   }
 
-    /**
-     * 根据url获取JSONArray
-     *
-     * @param url 请求的地址
-     * @return 目标JSONArray
-     */
-    public static JSONArray getJSONArray(String url) {
-        JSONArray mJSONArray = null;
-        try {
-            URL mURL = new URL(url);
-            HttpURLConnection mHttpURLConnection = (HttpURLConnection) mURL.openConnection();
-            if (true) {
-                InputStream mInputStream = mHttpURLConnection.getInputStream();
-                byte[] bytes = new byte[mInputStream.available()];
-                mInputStream.read(bytes);
-                String mJSONString = new String(bytes);
-                mJSONArray = new JSONArray(mJSONString);
-            }else {
-                Log.e("JsonUtil", "连接失败");
-            }
-        } catch (MalformedURLException e) {
-            Log.e("JsonUtil", "MalformedURLException:" + e);
-        } catch (IOException e) {
-            Log.e("JsonUtil", "IOException:" + e);
-        } catch (JSONException e) {
-            Log.e("JsonUtil", "JSONException:" + e);
-        }catch (Exception e){
-            Log.e("JsonUtil", "Exception:" + e);
-        }
-        return mJSONArray;
-
-    }
 
     /**
      * 根据json字符串获取响应对象的List
@@ -105,7 +43,7 @@ public class JsonUtil {
      * @param <T> 泛型
      * @return List
      */
-    public static  <T> List<T> getJsonList(String jsonString, final Class<T> tClass ){
+    public static  <T> List<T> jsonToList(String jsonString, final Class<T> tClass ){
         Gson gson = new Gson();
         List<T> list = new ArrayList<T>();
         try{
@@ -114,7 +52,7 @@ public class JsonUtil {
                 list.add(gson.fromJson(elem, tClass));
             }
         }catch (Exception e){
-            Log.e("JsonUtil", "getJsonList: "+e);
+            Log.e("JsonUtil", "jsonToList: "+e);
         }
 
         return list;
@@ -126,7 +64,7 @@ public class JsonUtil {
      * @param lists 存放对象的List
      * @return JSONArray字符串
      */
-    public static <E> String GetJsonArrayString(List<E> lists){
+    public static <E> String listToJson(List<E> lists){
         return new GsonBuilder().setPrettyPrinting().create().toJson(lists);
     }
 
@@ -135,7 +73,7 @@ public class JsonUtil {
      * @param object 目标对象
      * @return JSON字符串
      */
-    public static String getJsonString(Object object){
+    public static String objectToJson(Object object){
         Gson gson = new Gson();
         String s = gson.toJson(object);
         return  s;

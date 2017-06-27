@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/detail_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="这里显示帖子标题"
+        android:textSize="30sp"/>
+
+    <TextView
+        android:id="@+id/detail_tag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="这里显示作者,标签,分类等"/>
+
+    <TextView
+        android:id="@+id/detail_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="这里显示帖子内容"/>
+</LinearLayout>

@@ -15,6 +15,6 @@
             android:id="@+id/index_listview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#f0f0ff"></com.github.ksoichiro.android.observablescrollview.ObservableListView>
+            android:background="#f0f0ff"/>
 </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

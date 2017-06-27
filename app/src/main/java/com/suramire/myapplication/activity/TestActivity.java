@@ -104,7 +104,7 @@ public class TestActivity extends AppCompatActivity {
                 //请求成功时
                 final String string = response.body().string();
                 if(!string.isEmpty()){
-                    List<Note> jsonList = JsonUtil.getJsonList(string,Note.class);
+                    List<Note> jsonList = JsonUtil.jsonToList(string,Note.class);
                     Log.d("TestActivity", jsonList.size()+"");
                     String mString = "";
                     for (Note note :
@@ -153,7 +153,7 @@ public class TestActivity extends AppCompatActivity {
                     //请求成功时
                     final String string = response.body().string();
                     if(!string.isEmpty()){
-                        List<Note> jsonList = JsonUtil.getJsonList(string,Note.class);
+                        List<Note> jsonList = JsonUtil.jsonToList(string,Note.class);
                         Log.d("TestActivity", jsonList.size()+"");
                         String mString = "";
                         for (Note note :
@@ -186,10 +186,13 @@ public class TestActivity extends AppCompatActivity {
         Log.d("ip:", getIp());
         Drawable drawable = imageView3.getDrawable();//从imageview中获取drawable图片
         Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();//将drawable图片转成bitmap
-        String s = FileUtil.writeToSDCard(bitmap,"username.png");//将图片存入sd卡获取图片保存的路径
+        String s = FileUtil.writeToSDCard(bitmap,"download.png");//将图片存入sd卡获取图片保存的路径
+        // TODO: 2017/6/26 改成用户实际的名字`
         File file = new File(s);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/octet-stream"),file );
         //post方式上传头像 参数放在url
+        // TODO: 2017/6/27 用户名改为uid
+
         Request request = builder.url(Constant.URL0+"?username=username.png").post(requestBody).build();
         Call call = okHttpClient.newCall(request);
         call.enqueue(new Callback() {
@@ -203,7 +206,7 @@ public class TestActivity extends AppCompatActivity {
                 //请求成功时
                 final String string = response.body().string();
                 if(!string.isEmpty()){
-                    List<Note> jsonList = JsonUtil.getJsonList(string,Note.class);
+                    List<Note> jsonList = JsonUtil.jsonToList(string,Note.class);
                     Log.d("TestActivity", jsonList.size()+"");
                     String mString = "";
                     for (Note note :
@@ -243,7 +246,7 @@ public class TestActivity extends AppCompatActivity {
             public void onResponse(Response response) throws IOException {
                 //请求成功时
                 InputStream inputStream = response.body().byteStream();
-                File file = new File(Constant.PICTUREPATH,"username.png");
+                File file = new File(Constant.PICTUREPATH,"download.png");
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
                 byte[] buffer = new byte[1024];
                 int len =0;
@@ -256,7 +259,7 @@ public class TestActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH +"username.png");
+                        Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH +"download.png");//todo 正确命名图片
                         imageView3.setImageBitmap(bitmap);
                     }
                 });

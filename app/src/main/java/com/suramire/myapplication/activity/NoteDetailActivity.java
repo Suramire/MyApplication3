@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
@@ -18,7 +19,10 @@ import com.github.ksoichiro.android.observablescrollview.ObservableListView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.suramire.myapplication.R;
-import com.suramire.myapplication.util.FileUtil;
+import com.xmut.sc.entity.Note;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Suramire on 2017/6/20.
@@ -36,12 +40,19 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail);
+        setContentView(R.layout.activity_notedetail);
+        final Note note = (Note)getIntent().getSerializableExtra("note");
+        List<Note> notes = new ArrayList<>();
+        notes.add(note);
+        // TODO: 2017/6/26 判断该帖子是否有图片,有则显示图片
+        Log.d("NoteDetailActivity", note.getContent());
         listView = (ObservableListView) findViewById(R.id.detail_listview);
-        listView.setAdapter(new CommonAdapter<String>(this,R.layout.item_index, FileUtil.getStrings(10)) {
+        listView.setAdapter(new CommonAdapter<Note>(this,R.layout.item_detail,notes) {
             @Override
-            public void onUpdate(BaseAdapterHelper helper, String item, int position) {
-                helper.setText(R.id.index_title,item);
+            public void onUpdate(BaseAdapterHelper helper, Note item, int position) {
+                helper.setText(R.id.detail_title, item.getTitle())
+                        .setText(R.id.detail_content, item.getContent())
+                        .setText(R.id.detail_tag, item.getTag());
             }
         });
         final View header = View.inflate(this, R.layout.header_notedetail, null);
@@ -50,16 +61,15 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
         listView.setEmptyView(textView);
         listView.addHeaderView(header);
         listView.addFooterView(footer);
-
+        //评论按钮
         ImageButton imageButton = footer.findViewById(R.id.imageView8);
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(NoteDetailActivity.this,ReceiveActivity.class));
+                startActivity(new Intent(NoteDetailActivity.this,ReceiveActivity.class).putExtra("nid",note.getNid()));
             }
         });
         listView.setScrollViewCallbacks(this);
-//        listView.addFooterView();
         actionBar = getSupportActionBar();
     }
 
@@ -79,7 +89,6 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
 
         if (scrollState == ScrollState.UP) {
             if (actionBar.isShowing()) {
-
                 actionBar.hide();
             }
         }else if (scrollState == ScrollState.DOWN){

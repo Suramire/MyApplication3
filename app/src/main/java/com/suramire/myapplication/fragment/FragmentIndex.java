@@ -1,5 +1,6 @@
 package com.suramire.myapplication.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,14 +23,14 @@ import com.classic.adapter.CommonAdapter;
 import com.github.ksoichiro.android.observablescrollview.ObservableListView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
-import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
+import com.suramire.myapplication.activity.NoteDetailActivity;
 import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.GlideImageLoader;
+import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.JsonUtil;
 import com.xmut.sc.entity.Note;
 import com.youth.banner.Banner;
@@ -65,6 +66,7 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
     private View headerBanner;
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    // TODO: 2017/6/26 首页轮播图动态获取,没有则不显示
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -73,6 +75,8 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
         activity = (AppCompatActivity) getActivity();
         headerBanner = View.inflate(activity, R.layout.header_banner,null);
         ab = activity.getSupportActionBar();
+        Log.d("FragmentIndex", "ab:" + ab);
+
         bottomnavigationview = (BottomNavigationView) activity.findViewById(R.id.bottomnavigationview);
         floatingActionButton = (FloatingActionButton) activity.findViewById(R.id.fab);
 
@@ -100,16 +104,11 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
     private void getInitData(String what) {
         Log.d("FragmentIndex", "重新启动fragment时判断"+isDestory);
         if(isDestory){
-
             //如果重启应用之前被销毁则先加载销毁前的数据
             updateListView(notes);
             isDestory = false;
         }else{
-            OkHttpClient okHttpClient = new OkHttpClient();
-            Request.Builder builder = new Request.Builder();
-            Request request = builder.get().url(Constant.URLINDEX+"?do="+what).build();
-            Call call = okHttpClient.newCall(request);
-            call.enqueue(new Callback() {
+            HTTPUtil.getCall(Constant.URL +what,new Callback() {
                 @Override
                 public void onFailure(Request request, IOException e) {
                     Log.d("FragmentIndex", "onFailure");
@@ -119,7 +118,7 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
                     Log.d("FragmentIndex", "onResponse");
                     try {
                         String string = response.body().string();
-                        final List<Note> mNotes = JsonUtil.getJsonList(string, Note.class);
+                        final List<Note> mNotes = JsonUtil.jsonToList(string, Note.class);
                         indexCount += mNotes.size();//记录帖子数
                         final int mcount =mNotes.size();//本次刷新的数量
                         Log.d("FragmentIndex", "indexCount:" + indexCount);
@@ -155,16 +154,31 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
         listView.setScrollViewCallbacks(this);
     }
 
-    private void updateListView(List<Note> notes){
+    private void updateListView(final List<Note> notes){
         adapter = new CommonAdapter<Note>(activity, R.layout.item_index, notes) {
 
             @Override
-            public void onUpdate(BaseAdapterHelper helper, Note item, int position) {
+            public void onUpdate(BaseAdapterHelper helper, Note item, final int position) {
                 // TODO: 2017/6/25 首页item显示评论数
                 helper.setText(R.id.index_tag, item.getTag())
                         .setText(R.id.index_title,item.getTitle())
                         .setText(R.id.index_content,item.getContent())
                         .setText(R.id.index_count,item.getCount()+"");
+                helper.setOnClickListener(R.id.index_title, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("note",notes.get(position));
+                        startActivity(new Intent(activity, NoteDetailActivity.class).putExtras(bundle));
+                    }
+                }).setOnClickListener(R.id.index_content, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("note",notes.get(position));
+                        startActivity(new Intent(activity, NoteDetailActivity.class).putExtras(bundle));
+                    }
+                });
             }
         };
         swipeRefreshLayout.setRefreshing(false);//fixme 注销后重新启动应用第一次下拉进度圈不会消失
@@ -220,16 +234,16 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
 
     @Override
     public void onUpOrCancelMotionEvent(ScrollState scrollState) {
-//        Log.d("FragmentIndex", "listView.getFirstVisiblePosition():" + listView.getFirstVisiblePosition());
 
         if (activity == null) {
             return;
         }
-
         if (ab == null) {
             return;
         }
         if (scrollState == ScrollState.UP) {
+
+
 
             if (ab.isShowing()) {
                 Log.d("FragmentIndex", "hide");

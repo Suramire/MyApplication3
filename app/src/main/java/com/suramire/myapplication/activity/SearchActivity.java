@@ -1,8 +1,6 @@
 package com.suramire.myapplication.activity;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,19 +12,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
 import com.classic.adapter.CommonRecyclerAdapter;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
-import com.suramire.myapplication.test.Student;
 import com.suramire.myapplication.util.Constant;
+import com.suramire.myapplication.util.HTTPUtil;
+import com.suramire.myapplication.util.JsonUtil;
 import com.xmut.sc.entity.Note;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -35,6 +34,8 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+
+import static com.suramire.myapplication.util.Constant.URL;
 
 /**
  * Created by Suramire on 2017/6/20.
@@ -50,7 +51,6 @@ public class SearchActivity extends AppCompatActivity {
     @Bind(R.id.search_layout_hot2)
     LinearLayout searchLayoutHot2;
 
-    private List<Student> data;
     private SearchView searchView;
     CommonAdapter<Note> adapter;
 
@@ -59,13 +59,14 @@ public class SearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         ButterKnife.bind(this);
-        Log.d("SearchActivity", "Constant.isLogin:" + Constant.isLogin);
+
+        // TODO: 2017/6/26 这里读取服务类的热门分类或关键字
         ArrayList<String> strings = new ArrayList<>();
-        strings.add("啦啦啦");
+        strings.add("男默女泪");
         strings.add("UC");
         strings.add("正文");
         initListView();
-        final MyHandler myHandler = new MyHandler();
+
         searchHotRecyclerview.setLayoutManager(new LinearLayoutManager(SearchActivity.this, LinearLayoutManager.HORIZONTAL, false));
         searchHotRecyclerview.setAdapter(new CommonRecyclerAdapter<String>(SearchActivity.this, R.layout.item_hot, strings) {
 
@@ -79,7 +80,7 @@ public class SearchActivity extends AppCompatActivity {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                searchBySomething(trim, myHandler);
+                                searchBySomething(trim);
                             }
                         }).start();
                     }
@@ -102,11 +103,10 @@ public class SearchActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(final String query) {
-                final MyHandler myHandler = new MyHandler();
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        searchBySomething(query, myHandler);
+                        searchBySomething(query);
                     }
                 }).start();
 
@@ -143,72 +143,59 @@ public class SearchActivity extends AppCompatActivity {
      * 根据关键字模糊查询
      *
      * @param query     关键字
-     * @param myHandler 进行UI操作
+     *
      */
-    public void searchBySomething(String query, MyHandler myHandler) {
+    public void searchBySomething(String query) {
         try {
             String query0 = URLEncoder.encode(query, "utf-8");//设置编码
             URL url1 = new URL(Constant.BASEURL + "bbs/GetResult?query=" + query0);
-            String s = Constant.BASEURL + "bbs/GetResult?query=" + query;
-            Log.d("SearchActivity", s);
-            HttpURLConnection urlConnection = (HttpURLConnection) url1.openConnection();
-            ObjectInputStream objectInputStream = new ObjectInputStream(urlConnection.getInputStream());
-            Object o = objectInputStream.readObject();//读取对象
-            List<Note> notes = (List<Note>) o;
-            Message message = Message.obtain();
-            if (notes.size() > 0) {
-                Log.d("SearchActivity", "notes.size():" + notes.size());
-                message.what = Constant.SHOWRESULT;
-                message.obj = notes;
+            String url = URL + "search&query=" + query;
+            Log.d("SearchActivity", url);
+            HTTPUtil.getCall(url, new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
 
-            }else{
-                message.what = Constant.SHOWNOTHING;
-//                message.obj = notes;
-            }
-            myHandler.sendMessage(message);
+                }
+
+                @Override
+                public void onResponse(Response response) throws IOException {
+                    String string = response.body().string();
+                    if(!string.isEmpty()){
+                        final List<Note> mnotes = JsonUtil.jsonToList(string, Note.class);
+                        if(mnotes.size()>0){
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter = new CommonAdapter<Note>(SearchActivity.this, R.layout.item_search, mnotes) {
+                                        @Override
+                                        public void onUpdate(BaseAdapterHelper helper, Note item, int position) {
+                                            helper.setText(R.id.search_tag, item.getTag())
+                                                    .setText(R.id.search_title, item.getTitle())
+                                                    .setText(R.id.search_content, item.getContent())
+                                                    .setText(R.id.search_count, item.getCount() + "");
+                                        }
+                                    };
+                                    searchListview.setAdapter(adapter);
+//                        adapter.notifyDataSetChanged();
+                                    searchLayoutHot.setVisibility(View.GONE);//隐藏热搜标签
+                                    searchLayoutHot2.setVisibility(View.GONE);//隐藏热搜标签
+                                    searchView.setIconifiedByDefault(true);//收起搜索框
+                                    getSupportActionBar().setTitle("搜索结果");
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+
 
         } catch (MalformedURLException e) {
             Log.e("SearchActivity", "MalformedURLException:" + e);
         } catch (IOException e) {
             Log.e("SearchActivity", "IOException:" + e);
-        } catch (ClassNotFoundException e) {
-            Log.e("SearchActivity", "ClassNotFoundException:" + e);
         } catch (Exception e) {
             Log.e("SearchActivity", "Exception:" + e);
         }
     }
 
-    class MyHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case Constant.SHOWRESULT: {
-                    List<Note> notes = (List<Note>) msg.obj;
-
-                        Log.d("MyHandler", "adapter.getCount():" + adapter.getCount());
-                        adapter = new CommonAdapter<Note>(SearchActivity.this, R.layout.item_search, notes) {
-                            @Override
-                            public void onUpdate(BaseAdapterHelper helper, Note item, int position) {
-                                helper.setText(R.id.search_tag, item.getTag())
-                                        .setText(R.id.search_title, item.getTitle())
-                                        .setText(R.id.search_content, item.getContent())
-                                        .setText(R.id.search_count, item.getCount() + "");
-                            }
-                        };
-                        searchListview.setAdapter(adapter);
-//                        adapter.notifyDataSetChanged();
-                        searchLayoutHot.setVisibility(View.GONE);//隐藏热搜标签
-                        searchLayoutHot2.setVisibility(View.GONE);//隐藏热搜标签
-                        searchView.setIconifiedByDefault(true);//收起搜索框
-                        getSupportActionBar().setTitle("搜索结果");
-                }
-                break;
-                case Constant.SHOWNOTHING:{
-                    initListView();
-
-                    Toast.makeText(SearchActivity.this, "未找到符合条件的结果", Toast.LENGTH_SHORT).show();
-                } break;
-            }
-        }
-    }
 }

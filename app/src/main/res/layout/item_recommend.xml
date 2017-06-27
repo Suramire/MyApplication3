@@ -41,7 +41,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/recommend_textView2"
+        android:id="@+id/recommend_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
@@ -52,14 +52,14 @@
         android:textStyle="bold"/>
 
     <TextView
-        android:id="@+id/recommend_textView4"
+        android:id="@+id/recommend_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="3"
         android:text="这里显示帖子内容预览这里显示帖子内容预览这里显示帖子内容预览这里显示帖子内容预览这里显示帖子内容预览这里显示帖子内容预览这里显示帖子内容预览这里显示帖子内容预览这里显示帖子内容预览这里显示帖子内容预览"/>
 
     <TextView
-        android:id="@+id/recommend_textView5"
+        android:id="@+id/recommend_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="这里显示阅读量 （评论数）"/>

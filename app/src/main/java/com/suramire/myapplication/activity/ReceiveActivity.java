@@ -16,36 +16,75 @@ import android.widget.Toast;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
-import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.util.Constant;
-import com.suramire.myapplication.util.FileUtil;
+import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.JsonUtil;
 import com.xmut.sc.entity.Receive;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
+
+import static com.suramire.myapplication.util.Constant.URL;
 
 /**
  * Created by Suramire on 2017/6/25.
  */
 
 public class ReceiveActivity extends AppCompatActivity {
+
+    private List<Receive> receiveList;
+    private ListView listView;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receice);
-        ListView listView = (ListView) findViewById(R.id.receive_listview);
-        listView.setAdapter(new CommonAdapter<String>(this,R.layout.item_receive, FileUtil.getStrings(10)) {
+        listView = (ListView) findViewById(R.id.receive_listview);
+        listView.setEmptyView(findViewById(R.id.receive_empty));
+        int nid = getIntent().getIntExtra("nid", 0);
+        //根据nid查询该帖子的评论
+        HTTPUtil.getCall(URL + "getReceive&nid=" + nid, new Callback() {
             @Override
-            public void onUpdate(BaseAdapterHelper helper, String item, int position) {
-                helper.setText(R.id.receice_name, "评论者:" + item);
+            public void onFailure(Request request, IOException e) {
+                Log.d("ReceiveActivity", "onFailure");
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                Log.d("ReceiveActivity", "onResponse");
+
+                String string = response.body().string();
+                if(!string.isEmpty()) {
+                    //这边接收评论并显示
+                    receiveList = JsonUtil.jsonToList(string, Receive.class);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            listView.setAdapter(new CommonAdapter<Receive>(ReceiveActivity.this,R.layout.item_receive, receiveList) {
+                                @Override
+                                public void onUpdate(BaseAdapterHelper helper, Receive item, int position) {
+                                    // FIXME: 2017/6/26 分隔符待改进
+                                    String[] split = item.getContent().split(Constant.SPLIT);
+                                    String name = split[0];
+                                    String content = split[1];
+                                    helper.setText(R.id.receive_time,item.getReceivetime()+"")
+                                            .setText(R.id.receive_content,item.getContent())
+                                            .setText(R.id.receice_name,name);
+//
+                                }
+                            });
+                        }
+                    });
+                }
             }
         });
+
+
     }
 
     @Override
@@ -82,13 +121,8 @@ public class ReceiveActivity extends AppCompatActivity {
                         receive.setUid(1);
                         receive.setNid(2);
                         //2 将此对象转成JSON字符串 传送给服务器
-                        String jsonString = JsonUtil.getJsonString(receive);
-                        OkHttpClient okHttpClient = new OkHttpClient();
-                        Request.Builder builder1 = new Request.Builder();
-                        Request request = builder1.url(Constant.URLRECEIVE + "?json=" + jsonString).get().build();
-                        Call call = okHttpClient.newCall(request);
-                        //3 接收服务器结果
-                        call.enqueue(new Callback() {
+                        String jsonString = JsonUtil.objectToJson(receive);
+                        HTTPUtil.getCall(Constant.URLRECEIVE + "?json=" + jsonString,new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {
                                 Log.d("ReceiveActivity", "onFailure");
@@ -116,10 +150,12 @@ public class ReceiveActivity extends AppCompatActivity {
                             }
                         });
 
+                        //3 接收服务器结果
+
                         //4 根据结果是否刷新评论
 
                     }else{
-
+                        Toast.makeText(ReceiveActivity.this, "内容不能为空哦", Toast.LENGTH_SHORT).show();
                     }
 
                 }

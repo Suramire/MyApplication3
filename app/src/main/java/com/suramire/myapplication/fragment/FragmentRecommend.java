@@ -1,5 +1,6 @@
 package com.suramire.myapplication.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +27,7 @@ import com.suramire.myapplication.R;
 import com.suramire.myapplication.test.Student;
 import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.JsonUtil;
+import com.suramire.myapplication.util.SPUtils;
 import com.xmut.sc.entity.Note;
 
 import java.io.IOException;
@@ -45,55 +47,26 @@ public class FragmentRecommend extends Fragment {
     TextView recommendEmpty;
     private CommonAdapter<Student> adapter;
     String TAG = "FragmentRecommend";
+    private Activity activity;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d("FragmentRecommend", "Constant.isLogin:" + Constant.isLogin);
         Log.d(TAG, "onCreateView: ");
         View view = inflater.inflate(R.layout.activity_recommned, container, false);
         ButterKnife.bind(this, view);
+        activity = getActivity();
         recommendListview.setEmptyView(recommendEmpty);
-        if (Constant.isLogin) {
+        int uid = (int)SPUtils.get(activity, "uid", 0);
+        if (uid>0) {
             Log.d(TAG, "isLogin: ");
             // TODO: 2017/6/24 首先获取该用户的浏览记录,得知其常访问的帖子类型,根据类型进行推送
-//            final MyHandler myHandler = new MyHandler();
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    try {
-//                        String query0 = URLEncoder.encode("2", "utf-8");//设置编码
-//                        URL url1 = new URL(Constant.BASEURL + "bbs/Guess?query=" + query0);
-//                        String s = Constant.BASEURL + "bbs/Guess?query=" + query0;
-//                        Log.d("FragmentRecommend", s);
-//                        HttpURLConnection urlConnection = (HttpURLConnection) url1.openConnection();
-//                        ObjectInputStream objectInputStream = new ObjectInputStream(urlConnection.getInputStream());
-//                        Object o = objectInputStream.readObject();//读取对象
-//                        List<Note> notes = (List<Note>) o;
-//                        if (notes.size() > 0) {
-//                            Message message = Message.obtain();
-//                            message.what = Constant.SHOWRESULT;
-//                            message.obj = notes;
-//                            myHandler.sendMessage(message);
-//                        }
-//
-//
-//                    } catch (MalformedURLException e) {
-//                        Log.e("SearchActivity", "MalformedURLException:" + e);
-//                    } catch (IOException e) {
-//                        Log.e("SearchActivity", "IOException:" + e);
-//                    } catch (ClassNotFoundException e) {
-//                        Log.e("SearchActivity", "ClassNotFoundException:" + e);
-//                    } catch (Exception e) {
-//                        Log.e("SearchActivity", "Exception:" + e);
-//                    }
-//                }
-//            }).start();
 
             OkHttpClient okHttpClient = new OkHttpClient();
             Request.Builder builder = new Request.Builder();
             RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain;chaset=utf-8"), "hhh");
-            Request request = builder.post(requestBody).url(Constant.URLGUESS + "?username=" + Constant.userName).build();
+            Request request = builder.post(requestBody).url(Constant.URLGUESS + "?uid=" + uid).build();
+            // TODO: 2017/6/27 将用户名改为uid
             Call call = okHttpClient.newCall(request);
             call.enqueue(new Callback() {
                 @Override
@@ -105,7 +78,7 @@ public class FragmentRecommend extends Fragment {
                 public void onResponse(Response response) throws IOException {
                     Log.d(TAG, "onResponse: ");
 //                    Log.d("FragmentRecommend", response.body().string());
-                    final List<Note> notes = JsonUtil.getJsonList(response.body().string(), Note.class);
+                    final List<Note> notes = JsonUtil.jsonToList(response.body().string(), Note.class);
                     Log.d("FragmentRecommend", "notes.size():" + notes.size());
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -114,9 +87,9 @@ public class FragmentRecommend extends Fragment {
                                 @Override
                                 public void onUpdate(BaseAdapterHelper helper, Note item, int position) {
                                     helper.setText(R.id.recommend_type, item.getType())
-                                            .setText(R.id.recommend_textView2, item.getTitle())
-                                            .setText(R.id.recommend_textView4, item.getContent())
-                                            .setText(R.id.recommend_textView5, item.getCount() + "");
+                                            .setText(R.id.recommend_title, item.getTitle())
+                                            .setText(R.id.recommend_content, item.getContent())
+                                            .setText(R.id.recommend_count, item.getCount() + "");
                                 }
                             });
                         }
@@ -149,9 +122,9 @@ public class FragmentRecommend extends Fragment {
                         @Override
                         public void onUpdate(BaseAdapterHelper helper, Note item, int position) {
                             helper.setText(R.id.recommend_type, item.getType())
-                                    .setText(R.id.recommend_textView2, item.getTitle())
-                                    .setText(R.id.recommend_textView4, item.getContent())
-                                    .setText(R.id.recommend_textView5, item.getCount() + "");
+                                    .setText(R.id.recommend_title, item.getTitle())
+                                    .setText(R.id.recommend_content, item.getContent())
+                                    .setText(R.id.recommend_count, item.getCount() + "");
                         }
                     });
                 }
