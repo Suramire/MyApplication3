@@ -11,11 +11,7 @@ import java.util.List;
 
 public class Constant {
     /*常量区*/
-    public final static int SHOWJSONARRAY = 0x234;
-    public final static int SHOWIMAGE = 0x235;
-    public final static int SHOWRESULT = 0x236;
-    public final static int SHOWNOTHING = 0x237;
-    public final static int GETLIST = 0x238;
+
     public  static String BASEURL = "http://10.0.2.2:8080/";//进入系统时读取
 //    public final static String BASEURL = "http://192.168.1.101:8080/";
     public  static String URL0 = BASEURL+"bbs/Login";
@@ -25,6 +21,7 @@ public class Constant {
     public final  static  String DBNAME = "localuser.db";//本地数据库名
     public final  static  String TABLENAME = "user";//本地数据表名
     public final  static  String SPLIT = "splitzero";
+    public final static  int DELAY = 300;
     /*全局变量区*/
     public static String userName = "";//保存当前登录的用户名
     public static Note note;//当前查看的帖子

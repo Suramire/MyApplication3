@@ -1,13 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:layout_gravity="http://schemas.android.com/tools"
+             android:orientation="vertical"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
     <ListView
         android:id="@+id/receive_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+
+        android:background="#FFFFFF"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/editText2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="写评论"
+            android:inputType="text"
+            android:maxLines="3"/>
+
+        <Button
+            android:id="@+id/receive_send"
+            android:layout_width="77dp"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:text="发送"
+            android:textAlignment="center"
+            android:textColor="#0F0F0F"
+            android:textSize="18sp"/>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/receive_empty"
@@ -15,4 +45,4 @@
         android:layout_height="wrap_content"
         android:text="还没有评论,快来抢个沙发"
         android:visibility="gone"/>
-</LinearLayout>
+</FrameLayout>

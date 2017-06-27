@@ -12,10 +12,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.classic.adapter.BaseAdapterHelper;
@@ -23,6 +25,8 @@ import com.classic.adapter.CommonAdapter;
 import com.github.ksoichiro.android.observablescrollview.ObservableListView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
+import com.nineoldandroids.animation.ValueAnimator;
+import com.nineoldandroids.view.ViewHelper;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -42,6 +46,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.suramire.myapplication.util.Constant.DELAY;
 import static com.suramire.myapplication.util.Constant.indexCount;
 import static com.suramire.myapplication.util.Constant.isDestory;
 import static com.suramire.myapplication.util.Constant.notes;
@@ -62,12 +67,15 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
     private AppCompatActivity activity;
     private ActionBar ab;
     private BottomNavigationView bottomnavigationview;
-    private FloatingActionButton floatingActionButton;
+    private FloatingActionButton fab;
 
     private View headerBanner;
     private SwipeRefreshLayout swipeRefreshLayout;
     private boolean bannerIsShow;
     private int uid;
+    private Toolbar toolbar;
+    private RelativeLayout bottomlayout;
+    private View headerview;
 
     // TODO: 2017/6/26 首页轮播图动态获取,没有则不显示
     @Nullable
@@ -78,10 +86,12 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
         headerBanner = View.inflate(activity, R.layout.header_banner,null);
         ab = activity.getSupportActionBar();
         Log.d("FragmentIndex", "ab:" + ab);
+//        headerview = View.inflate(activity, R.layout.header_blank, null);
         uid = (int) SPUtils.get(activity, "uid", 0);
         bottomnavigationview = (BottomNavigationView) activity.findViewById(R.id.bottomnavigationview);
-        floatingActionButton = (FloatingActionButton) activity.findViewById(R.id.fab);
-
+        fab = (FloatingActionButton) activity.findViewById(R.id.fab);
+        toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
+        bottomlayout = (RelativeLayout) activity.findViewById(R.id.bottomlayout);
         swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -96,11 +106,14 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
         });
         swipeRefreshLayout.setProgressViewOffset(true,0,160);//设置进度圈位置
         setupListView(swipeRefreshLayout);
-        if((boolean) SPUtils.get(activity,"banner",true)){
-            setupBanner(headerBanner);
-        }else {
-            removeBanner(headerBanner);
-        }
+        setupBanner(headerBanner);
+
+//        if((boolean) SPUtils.get(activity,"banner",true)){
+//
+//        }else {
+//            removeBanner(headerBanner);
+//
+//        }
 
 
         //初次加载
@@ -195,8 +208,11 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
 
 
     private void setupBanner(View headerBanner) {
+        listView.removeHeaderView(headerBanner);
+        Boolean show = (Boolean) SPUtils.get(activity, "banner", true);
+        banner = headerBanner.findViewById(R.id.banner);
+        if(show){
 
-            banner = headerBanner.findViewById(R.id.banner);
             banner.setImageLoader(new GlideImageLoader());
             ArrayList<Integer> images = new ArrayList<>();
             images.add(R.drawable.imga);
@@ -219,8 +235,11 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
                             Toast.makeText(getActivity(),"点击了第" +( position+1)+"张图片", Toast.LENGTH_SHORT).show();
                         }
                     }).start();
-            listView.addHeaderView(headerBanner);
-            bannerIsShow = true;
+        }else{
+            banner.setVisibility(View.GONE);
+        }
+        listView.addHeaderView(headerBanner);
+//            bannerIsShow = true;
 //        if ((Boolean) SPUtils.get(activity,"banner",true)) {
 //
 //            bannerIsShow = true;
@@ -233,10 +252,10 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
 
     }
 
-    public void removeBanner(View headerBanner){
-        listView.removeHeaderView(headerBanner);
-        bannerIsShow = false;
-    }
+//    public void removeBanner(View headerBanner){
+//        listView.removeHeaderView(headerBanner);
+//        bannerIsShow = false;
+//    }
 
 
     @Override
@@ -246,15 +265,17 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
 
     @Override
     public void onResume() {
-        boolean banner = (boolean) SPUtils.get(activity, "banner", true);
-//        L.e("banner:"+banner+" bannerIsShow:"+bannerIsShow);
-        if(banner&&!bannerIsShow){
-            //之前没有banner
-            setupBanner(headerBanner);
-        }else if(!banner && bannerIsShow){
-//            之前有banner
-            removeBanner(headerBanner);
-        }
+//        boolean banner = (boolean) SPUtils.get(activity, "banner", true);
+////        L.e("banner:"+banner+" bannerIsShow:"+bannerIsShow);
+//        if(banner&&!bannerIsShow){
+//            //之前没有banner
+//            setupBanner(headerBanner);
+//        }else if(!banner && bannerIsShow){
+////            之前有banner
+//            removeBanner(headerBanner);
+//        }
+        setupBanner(headerBanner);
+
         super.onResume();
     }
 
@@ -271,34 +292,26 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
     @Override
     public void onUpOrCancelMotionEvent(ScrollState scrollState) {
 
+
+
         if (activity == null) {
             return;
         }
         if (ab == null) {
             return;
         }
-        if (scrollState == ScrollState.UP) {
-
-
-
-            if (ab.isShowing()) {
-                Log.d("FragmentIndex", "hide");
-                ab.setShowHideAnimationEnabled(true);
-                ab.hide();
-
-                bottomnavigationview.setVisibility(View.GONE);
-//                banner.setAnimation(mHiddenAction);
-//                banner.setVisibility(View.GONE);
-
-                floatingActionButton.hide();
+                if (scrollState == ScrollState.UP) {
+            if (fab.isShown()) {
+//                listView.removeHeaderView(headerview);
+                hide(toolbar, bottomlayout);
             }
+
         } else if (scrollState == ScrollState.DOWN) {
-            if (!ab.isShowing()) {
-                Log.d("FragmentIndex", "show");
-                ab.show();
-                bottomnavigationview.setVisibility(View.VISIBLE);
-                floatingActionButton.show();
+            if (!fab.isShown()) {
+//                listView.addHeaderView(headerview);
+                show(toolbar, bottomlayout);
             }
+
         }
     }
 
@@ -325,6 +338,48 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
         isDestory = true;
         super.onDestroyView();
     }
+    private void hide(final View top, final View bottom) {
+        fab.hide();
+        ValueAnimator animator = ValueAnimator.ofFloat(0, top.getHeight()).setDuration(DELAY);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float value = (float) animation.getAnimatedValue();
+                ViewHelper.setTranslationY(top, -value);
+            }
+        });
+        animator.start();
+        ValueAnimator animator2 = ValueAnimator.ofFloat(0, bottom.getHeight()).setDuration(DELAY);
+        animator2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float value = (float) animation.getAnimatedValue();
+                ViewHelper.setTranslationY(bottom, value);
+            }
+        });
+        animator2.start();
+    }
 
+    private void show(final View top, final View bottom) {
+        fab.show();
+        ValueAnimator animator = ValueAnimator.ofFloat(top.getHeight(), 0).setDuration(DELAY);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float value = (float) animation.getAnimatedValue();
+                ViewHelper.setTranslationY(top, -value);
+            }
+        });
+        animator.start();
+        ValueAnimator animator2 = ValueAnimator.ofFloat(bottom.getHeight(), 0).setDuration(DELAY);
+        animator2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float value = (float) animation.getAnimatedValue();
+                ViewHelper.setTranslationY(bottom, value);
+            }
+        });
+        animator2.start();
+    }
 
 }

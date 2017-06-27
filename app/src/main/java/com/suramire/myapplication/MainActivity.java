@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -63,8 +62,6 @@ public class MainActivity extends AppCompatActivity
     public static final int REQUESTCODE =0x0;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
-    @Bind(R.id.appbarLayout)
-    AppBarLayout appbarLayout;
     @Bind(R.id.viewpager)
     MyViewPager viewpager;
     @Bind(R.id.bottomnavigationview)
@@ -159,7 +156,8 @@ public class MainActivity extends AppCompatActivity
                                 @Override
                                 public void onResponse(Response response) throws IOException {
                                     InputStream inputStream1 = response.body().byteStream();
-                                    L.e("获取的头像字节流" + inputStream1);
+                                    //FIXME 头像获取有问题
+                                    L.e("获取的头像字节流:" + inputStream1);
                                     if(inputStream1!=null){
                                         //请求成功时
                                         File file = new File(Constant.PICTUREPATH,userImg);
@@ -176,6 +174,8 @@ public class MainActivity extends AppCompatActivity
                                             @Override
                                             public void run() {
                                                 Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH +userImg);
+//                                                L.e("读取本地图片 高度:"+bitmap.getHeight());
+
                                                 user_img.setImageBitmap(bitmap);
                                             }
                                         });

@@ -235,7 +235,7 @@ public class TestActivity extends AppCompatActivity {
     public void onViewClicked() {
         Log.d("ip:", getIp());
         //post方式上传头像 参数放在url
-        Request request = builder.url(Constant.BASEURL+"bbs/upload/username.png").get().build();
+        Request request = builder.url(Constant.BASEURL+"bbs/upload/user.png").get().build();
         Call call = okHttpClient.newCall(request);
         call.enqueue(new Callback() {
             @Override
