@@ -2,16 +2,17 @@ package com.suramire.myapplication.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
@@ -20,9 +21,11 @@ import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
+import com.suramire.myapplication.base.BaseActivity;
 import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.JsonUtil;
+import com.suramire.myapplication.util.L;
 import com.xmut.sc.entity.Note;
 
 import java.io.IOException;
@@ -41,7 +44,7 @@ import static com.suramire.myapplication.util.Constant.URL;
  * Created by Suramire on 2017/6/20.
  */
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends BaseActivity {
     @Bind(R.id.search_listview)
     ListView searchListview;
     @Bind(R.id.search_hot_recyclerview)
@@ -160,7 +163,8 @@ public class SearchActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Response response) throws IOException {
                     String string = response.body().string();
-                    if(!string.isEmpty()){
+                    L.e("搜索结果" + string);
+                    if(!TextUtils.isEmpty(string)){
                         final List<Note> mnotes = JsonUtil.jsonToList(string, Note.class);
                         if(mnotes.size()>0){
                             runOnUiThread(new Runnable() {
@@ -184,6 +188,14 @@ public class SearchActivity extends AppCompatActivity {
                                 }
                             });
                         }
+                    }else{
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(SearchActivity.this, "未找到符合条件的结果", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
                     }
                 }
             });

@@ -17,6 +17,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,18 +45,22 @@ import com.suramire.myapplication.util.SPUtils;
 import com.suramire.myapplication.view.MyViewPager;
 import com.xmut.sc.entity.User;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+import static com.suramire.myapplication.util.Constant.BASEURL;
 import static com.suramire.myapplication.util.Constant.URL;
 import static com.suramire.myapplication.util.Constant.userName;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    public static final int REQUESTCODE =0x0;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.appbarLayout)
@@ -76,6 +81,19 @@ public class MainActivity extends AppCompatActivity
     private int uid;
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUESTCODE && resultCode==PhotoSelectActicity.CODESUCCESS){
+            //这里更新图片
+            L.e("返回结果为success,更新头像");
+            user_img.setImageBitmap(BitmapFactory.decodeFile(Constant.PICTUREPATH+Constant.userName+".png"));
+        }else{
+            L.e("返回结果为fail,什么都不做");
+
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -83,28 +101,32 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         String ip =(String) SPUtils.get(this,"ip","10.0.2.2");
         String port = (String) SPUtils.get(this,"port","8080");
-        Constant.BASEURL ="http://"+ip+":"+port+"/";
-        L.e("ip"+Constant.BASEURL);
+        BASEURL ="http://"+ip+":"+port+"/";
+        URL = BASEURL+"bbs/GetResult?do=";
+        L.e("service ip:" + BASEURL);
         //为抽屉菜单添加头部
         view = navigationView.inflateHeaderView(R.layout.nav_header_main);
         username_textview = view.findViewById(R.id.index_username_tv);
         user_img = view.findViewById(R.id.imageView);
-        user_img.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                Toast.makeText(MainActivity.this, "未登录跳转到登录界面,已登录弹出头像选择框", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(MainActivity.this, PhotoSelectActicity.class));
-            }
-        });
-//        SPUtils.put(this,"uid",1);
+
+        // TODO: 2017/6/27 添加网络连接判断
+        SPUtils.put(this,"uid",1);
         //先判断是否登录
         uid = (int) SPUtils.get(this, "uid", 0);
         if (uid > 0) {
             L.e("已登录@Main");
             //读取用户在线信息并显示
-            // TODO: 2017/6/26  本地存入的是  uid
-            // FIXME: 2017/6/26  用户表username字段唯一约束
+            user_img.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+//                Toast.makeText(MainActivity.this, "未登录跳转到登录界面,已登录弹出头像选择框", Toast.LENGTH_SHORT).show();
+                    startActivityForResult(new Intent(MainActivity.this, PhotoSelectActicity.class),REQUESTCODE);
+                }
+            });
             HTTPUtil.getCall(URL + "getUser&uid=" + uid, new Callback() {
+
+                private String userImg;
+
                 @Override
                 public void onFailure(Request request, IOException e) {
 
@@ -113,20 +135,63 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onResponse(Response response) throws IOException {
                     String jsonString = response.body().string();
-                    if(!jsonString.isEmpty()){
-                        User user = (User) JsonUtil.jsonToObject(jsonString, User.class);
+                    if(!TextUtils.isEmpty(jsonString)){
+                        final User user = (User) JsonUtil.jsonToObject(jsonString, User.class);
                         userName = user.getUsername();
+                        userImg = user.getImg();
                         username_textview.setText(userName);
                         username_textview.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                //todo 点击用户名跳转到个人中心
+                                Log.d("MainActivity", "已登录状态,跳转到个人中心");
                             }
                         });
-                        Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH + "default.png");//todo 默认头像
-                        user_img.setImageBitmap(bitmap);
+                        // TODO: 2017/6/27 若用户有头像则显示用户头像
+                        if(!"".equals(user.getImg())){
+                            //有头像,连接服务器获取
+                            L.e("该用户有头像");
+                            HTTPUtil.getCall(Constant.BASEURL + "bbs/upload/" + userImg, new Callback() {
+                                @Override
+                                public void onFailure(Request request, IOException e) {
+
+                                }
+
+                                @Override
+                                public void onResponse(Response response) throws IOException {
+                                    InputStream inputStream1 = response.body().byteStream();
+                                    L.e("获取的头像字节流" + inputStream1);
+                                    if(inputStream1!=null){
+                                        //请求成功时
+                                        File file = new File(Constant.PICTUREPATH,userImg);
+                                        FileOutputStream fileOutputStream = new FileOutputStream(file);
+                                        byte[] buffer = new byte[1024];
+                                        int len =0;
+                                        while ((len=inputStream1.read(buffer))!=-1){
+                                            fileOutputStream.write(buffer,0,len);
+                                        }
+                                        fileOutputStream.flush();
+                                        fileOutputStream.close();
+                                        inputStream1.close();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH +userImg);
+                                                user_img.setImageBitmap(bitmap);
+                                            }
+                                        });
+                                    }
+
+
+                                }
+                            });
+                        }else{
+                            L.e("该用户没有头像");
+                            Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH + "default.png");//todo 默认头像
+                            user_img.setImageBitmap(bitmap);
+                        }
+
                     }
-                    //// TODO: 获取结果为空时的异常处理
+                    // TODO: 获取结果为空时的异常处理
                 }
             });
 
@@ -139,24 +204,30 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onResponse(Response response) throws IOException {
-                    String string = response.body().string();
+                    final String string = response.body().string();
                     //这里获取登录用户的发帖数
-                    if(!string.isEmpty()){
-                        String[] split = string.split(Constant.SPLIT);
-                        Menu menu = navigationView.getMenu();
-                        menu.getItem(0).setTitle("发帖数:"+split[0]);
-                        menu.getItem(1).setTitle("回帖数:"+split[1]);
-                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(!TextUtils.isEmpty(string)){
+                                String[] split = string.split(Constant.SPLIT);
+                                Menu menu = navigationView.getMenu();
+                                menu.getItem(0).setTitle("发帖数:"+split[0]);
+                                menu.getItem(1).setTitle("回帖数:"+split[1]);
+                            }
+                        }
+                    });
 
 
                 }
             });
 
         } else {
+            //未登录状态
             username_textview.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //todo 跳转到登录界面
+                    Toast.makeText(MainActivity.this, "跳转到登录页面", Toast.LENGTH_SHORT).show();
                 }
             });
             L.e("未登录@Main");
@@ -295,6 +366,7 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 
 
 

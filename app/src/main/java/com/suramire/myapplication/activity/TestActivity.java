@@ -14,6 +14,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -103,7 +104,7 @@ public class TestActivity extends AppCompatActivity {
             public void onResponse(Response response) throws IOException {
                 //请求成功时
                 final String string = response.body().string();
-                if(!string.isEmpty()){
+                if(!TextUtils.isEmpty(string)){
                     List<Note> jsonList = JsonUtil.jsonToList(string,Note.class);
                     Log.d("TestActivity", jsonList.size()+"");
                     String mString = "";
@@ -152,7 +153,7 @@ public class TestActivity extends AppCompatActivity {
                 public void onResponse(Response response) throws IOException {
                     //请求成功时
                     final String string = response.body().string();
-                    if(!string.isEmpty()){
+                    if(!TextUtils.isEmpty(string)){
                         List<Note> jsonList = JsonUtil.jsonToList(string,Note.class);
                         Log.d("TestActivity", jsonList.size()+"");
                         String mString = "";
@@ -205,7 +206,7 @@ public class TestActivity extends AppCompatActivity {
             public void onResponse(Response response) throws IOException {
                 //请求成功时
                 final String string = response.body().string();
-                if(!string.isEmpty()){
+                if(!TextUtils.isEmpty(string)){
                     List<Note> jsonList = JsonUtil.jsonToList(string,Note.class);
                     Log.d("TestActivity", jsonList.size()+"");
                     String mString = "";

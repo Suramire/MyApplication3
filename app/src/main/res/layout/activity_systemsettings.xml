@@ -47,7 +47,7 @@
             android:ems="10"
             android:hint="请输入端口号"
             android:inputType="number"/>
-            />
+
 
     </LinearLayout>
 
@@ -55,6 +55,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
 
         <TextView
             android:id="@+id/textView16"
@@ -71,6 +72,28 @@
             android:text="状态:"
             android:textOff="已关闭"
             android:textOn="运行中"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="首页轮播图:"/>
+
+        <Switch
+            android:id="@+id/sys_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="状态:"
+            android:textOff="隐藏"
+            android:textOn="显示"/>
 
     </LinearLayout>
 

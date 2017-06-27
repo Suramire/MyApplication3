@@ -32,6 +32,7 @@ import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.GlideImageLoader;
 import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.JsonUtil;
+import com.suramire.myapplication.util.SPUtils;
 import com.xmut.sc.entity.Note;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
@@ -65,18 +66,19 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
 
     private View headerBanner;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private boolean bannerIsShow;
+    private int uid;
 
     // TODO: 2017/6/26 首页轮播图动态获取,没有则不显示
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.activity_index, container, false);
         activity = (AppCompatActivity) getActivity();
         headerBanner = View.inflate(activity, R.layout.header_banner,null);
         ab = activity.getSupportActionBar();
         Log.d("FragmentIndex", "ab:" + ab);
-
+        uid = (int) SPUtils.get(activity, "uid", 0);
         bottomnavigationview = (BottomNavigationView) activity.findViewById(R.id.bottomnavigationview);
         floatingActionButton = (FloatingActionButton) activity.findViewById(R.id.fab);
 
@@ -87,14 +89,20 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        getInitData("refresh&count="+ indexCount);
+                        getInitData("refresh&count="+ indexCount+"&uid="+uid);
                     }
                 }).start();
             }
         });
         swipeRefreshLayout.setProgressViewOffset(true,0,160);//设置进度圈位置
         setupListView(swipeRefreshLayout);
-        setupBanner(headerBanner);
+        if((boolean) SPUtils.get(activity,"banner",true)){
+            setupBanner(headerBanner);
+        }else {
+            removeBanner(headerBanner);
+        }
+
+
         //初次加载
         getInitData("index");
 
@@ -108,7 +116,7 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
             updateListView(notes);
             isDestory = false;
         }else{
-            HTTPUtil.getCall(Constant.URL +what,new Callback() {
+            HTTPUtil.getCall(Constant.URL +what+"&uid="+uid,new Callback() {
                 @Override
                 public void onFailure(Request request, IOException e) {
                     Log.d("FragmentIndex", "onFailure");
@@ -121,7 +129,6 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
                         final List<Note> mNotes = JsonUtil.jsonToList(string, Note.class);
                         indexCount += mNotes.size();//记录帖子数
                         final int mcount =mNotes.size();//本次刷新的数量
-                        Log.d("FragmentIndex", "indexCount:" + indexCount);
                         if (mcount==0){
                             SystemClock.sleep(1000);
                             handler.sendEmptyMessage(mcount);//取消下拉进度圈
@@ -188,38 +195,67 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
 
 
     private void setupBanner(View headerBanner) {
-        banner = headerBanner.findViewById(R.id.banner);
-        banner.setImageLoader(new GlideImageLoader());
-        ArrayList<Integer> images = new ArrayList<>();
-        images.add(R.drawable.imga);
-        images.add(R.drawable.imgb);
-        images.add(R.drawable.imgc);
-        images.add(R.drawable.imgd);
-        images.add(R.drawable.imge);
 
-        List<String> stringList = new ArrayList<>();
-        for(int i=0;i<images.size();i++){
-            stringList.add("这是是图片对于的标题"+(i+1));
-        }
+            banner = headerBanner.findViewById(R.id.banner);
+            banner.setImageLoader(new GlideImageLoader());
+            ArrayList<Integer> images = new ArrayList<>();
+            images.add(R.drawable.imga);
+            images.add(R.drawable.imgb);
+            images.add(R.drawable.imgc);
+            images.add(R.drawable.imgd);
+            images.add(R.drawable.imge);
 
-        banner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR_TITLE_INSIDE)
-                .setImages(images)
-                .setBannerTitles(stringList)
-                .setOnBannerListener(new OnBannerListener() {
-                    @Override
-                    public void OnBannerClick(int position) {
-                         Toast.makeText(getActivity(),"点击了第" +( position+1)+"张图片", Toast.LENGTH_SHORT).show();
-                    }
-        }).start();
-        listView.addHeaderView(headerBanner);
+            List<String> stringList = new ArrayList<>();
+            for(int i=0;i<images.size();i++){
+                stringList.add("这是是图片对于的标题"+(i+1));
+            }
+
+            banner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR_TITLE_INSIDE)
+                    .setImages(images)
+                    .setBannerTitles(stringList)
+                    .setOnBannerListener(new OnBannerListener() {
+                        @Override
+                        public void OnBannerClick(int position) {
+                            Toast.makeText(getActivity(),"点击了第" +( position+1)+"张图片", Toast.LENGTH_SHORT).show();
+                        }
+                    }).start();
+            listView.addHeaderView(headerBanner);
+            bannerIsShow = true;
+//        if ((Boolean) SPUtils.get(activity,"banner",true)) {
+//
+//            bannerIsShow = true;
+//        }else{
+//            listView.removeHeaderView(headerBanner);
+//            bannerIsShow = false;
+//        }
+
         // TODO: 2017/6/25 设置项加入 显示banner开关
 
     }
 
+    public void removeBanner(View headerBanner){
+        listView.removeHeaderView(headerBanner);
+        bannerIsShow = false;
+    }
+
+
     @Override
     public void onPause() {
         super.onPause();
-        banner.stopAutoPlay();
+    }
+
+    @Override
+    public void onResume() {
+        boolean banner = (boolean) SPUtils.get(activity, "banner", true);
+//        L.e("banner:"+banner+" bannerIsShow:"+bannerIsShow);
+        if(banner&&!bannerIsShow){
+            //之前没有banner
+            setupBanner(headerBanner);
+        }else if(!banner && bannerIsShow){
+//            之前有banner
+            removeBanner(headerBanner);
+        }
+        super.onResume();
     }
 
     @Override
@@ -289,4 +325,6 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
         isDestory = true;
         super.onDestroyView();
     }
+
+
 }

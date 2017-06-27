@@ -69,7 +69,6 @@ public class FileUtil {
     }
 
     public static void WriteObjectToFile(Object object){
-        // TODO: 2017/6/25  写入文件之前先删除之前的文件
         try {
             FileOutputStream fos = new FileOutputStream(Constant.PICTUREPATH+"temp.dat");
             ObjectOutputStream oos = new ObjectOutputStream(fos);

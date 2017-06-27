@@ -3,12 +3,11 @@ package com.suramire.myapplication.base;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.WindowManager;
 
 /**
  * Created by Suramire on 2017/6/23.
+ * 带返回按钮的Activity
  */
 
 public class BaseActivity extends AppCompatActivity {
