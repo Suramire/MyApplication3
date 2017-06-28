@@ -13,7 +13,7 @@ public class Notetype implements java.io.Serializable {
 
 	// Constructors
 
-	/** default constructor */
+	/** def constructor */
 	public Notetype() {
 	}
 

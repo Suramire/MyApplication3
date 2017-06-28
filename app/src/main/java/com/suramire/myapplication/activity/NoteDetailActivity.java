@@ -2,11 +2,13 @@ package com.suramire.myapplication.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.classic.adapter.BaseAdapterHelper;
@@ -34,6 +36,8 @@ public class NoteDetailActivity extends BaseActivity implements ObservableScroll
     ObservableListView detailListview;
     @Bind(R.id.detail_empty)
     TextView detailEmpty;
+    @Bind(R.id.detail_botton)
+    BottomNavigationView detailBotton;
     private ActionBar actionBar;
 
 
@@ -42,6 +46,7 @@ public class NoteDetailActivity extends BaseActivity implements ObservableScroll
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notedetail);
         ButterKnife.bind(this);
+
         final Note note = (Note) getIntent().getSerializableExtra("note");
         List<Note> notes = new ArrayList<>();
         notes.add(note);
@@ -56,18 +61,38 @@ public class NoteDetailActivity extends BaseActivity implements ObservableScroll
             }
         });
         final View header = View.inflate(this, R.layout.header_notedetail, null);
-        View footer = View.inflate(this, R.layout.footer_notedetail, null);
+//        View footer = View.inflate(this, R.layout.footer_notedetail, null);
         detailListview.setEmptyView(detailEmpty);
         detailListview.addHeaderView(header);
-        detailListview.addFooterView(footer);
-        //评论按钮
-        ImageButton imageButton = footer.findViewById(R.id.imageView8);
-        imageButton.setOnClickListener(new View.OnClickListener() {
+//        detailBotton.setSelectedItemId(R.id.navigation_notifications);
+        detailBotton.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onClick(View view) {
-                startActivity(new Intent(NoteDetailActivity.this, ReceiveActivity.class).putExtra("nid", note.getNid()));
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Log.d("MainActivity", "item:" + item);
+                switch (item.getItemId()) {
+                    case R.id.navigation_home:
+//                        viewPager.setCurrentItem(0);
+                        return false;
+                    case R.id.navigation_dashboard:
+//                        viewPager.setCurrentItem(1);
+                        return false;
+                    case R.id.navigation_notifications:
+//                        viewPager.setCurrentItem(3);
+                        startActivity(new Intent(NoteDetailActivity.this, ReceiveActivity.class).putExtra("nid", note.getNid()));
+                        return false;
+                }
+                return true;
             }
         });
+//        detailListview.addFooterView(footer);
+        //评论按钮
+//        ImageButton imageButton = footer.findViewById(R.id.imageView8);
+//        imageButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                startActivity(new Intent(NoteDetailActivity.this, ReceiveActivity.class).putExtra("nid", note.getNid()));
+//            }
+//        });
         detailListview.setScrollViewCallbacks(this);
         actionBar = getSupportActionBar();
     }

@@ -13,7 +13,7 @@ public class Hobby implements java.io.Serializable {
 
 	// Constructors
 
-	/** default constructor */
+	/** def constructor */
 	public Hobby() {
 	}
 

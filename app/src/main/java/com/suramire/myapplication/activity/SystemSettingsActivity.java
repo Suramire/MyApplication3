@@ -83,6 +83,7 @@ public class SystemSettingsActivity extends BaseActivity {
             SPUtils.put(this, "port", porttextview.getText().toString().trim());
             SPUtils.put(this, "banner", sysBanner.isChecked());
             Toast.makeText(this, "修改成功", Toast.LENGTH_SHORT).show();
+            finish();
         } catch (Exception e) {
             Log.e("SystemSettingsActivity", "Exception:" + e);
         }

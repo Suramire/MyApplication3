@@ -18,7 +18,7 @@ public class Receive implements java.io.Serializable {
 
 	// Constructors
 
-	/** default constructor */
+	/** def constructor */
 	public Receive() {
 	}
 

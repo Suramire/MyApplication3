@@ -26,7 +26,7 @@ public class User implements java.io.Serializable {
 
 	// Constructors
 
-	/** default constructor */
+	/** def constructor */
 	public User() {
 	}
 

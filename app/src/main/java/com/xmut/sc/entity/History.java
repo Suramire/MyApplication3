@@ -17,7 +17,7 @@ public class History implements java.io.Serializable {
 
 	// Constructors
 
-	/** default constructor */
+	/** def constructor */
 	public History() {
 	}
 

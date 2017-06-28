@@ -12,6 +12,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +24,7 @@ import android.widget.Toast;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
+import com.classic.adapter.CommonRecyclerAdapter;
 import com.github.ksoichiro.android.observablescrollview.ObservableListView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
@@ -30,8 +33,10 @@ import com.nineoldandroids.view.ViewHelper;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import com.suramire.myapplication.activity.NoteByTypeActivity;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.activity.NoteDetailActivity;
+import com.suramire.myapplication.entity.Type;
 import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.GlideImageLoader;
 import com.suramire.myapplication.util.HTTPUtil;
@@ -76,6 +81,7 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
     private Toolbar toolbar;
     private RelativeLayout bottomlayout;
     private View headerview;
+    private RecyclerView recyclerView;
 
     // TODO: 2017/6/26 首页轮播图动态获取,没有则不显示
     @Nullable
@@ -207,10 +213,38 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
 
 
 
-    private void setupBanner(View headerBanner) {
+    private void setupBanner(final View headerBanner) {
         listView.removeHeaderView(headerBanner);
         Boolean show = (Boolean) SPUtils.get(activity, "banner", true);
         banner = headerBanner.findViewById(R.id.banner);
+        recyclerView = headerBanner.findViewById(R.id.listview_type);
+        List<Type> types = new ArrayList<>();
+        for(int i=0;i<6;i++){
+            Type t = new Type(R.drawable.a4x,"类型"+(i+1));
+            types.add(t);
+        }
+        recyclerView.setAdapter(new CommonRecyclerAdapter<Type>(activity,R.layout.item_type,types) {
+
+            @Override
+            public void onUpdate(BaseAdapterHelper helper, Type item, final int position) {
+                helper.setImageResource(R.id.img_type, item.getImage())
+                        .setText(R.id.textview_type, item.getName());
+                helper.setOnClickListener(R.id.img_type, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // TODO: 2017/6/28 这里跳转到对应分类的帖子
+                        startActivity(new Intent(activity, NoteByTypeActivity.class).putExtra("index",position));
+                    }
+                })
+                        .setOnClickListener(R.id.textview_type, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                startActivity(new Intent(activity, NoteByTypeActivity.class).putExtra("index",position));
+                            }
+                        });
+            }
+        });
+        recyclerView.setLayoutManager(new GridLayoutManager(activity,3));
         if(show){
 
             banner.setImageLoader(new GlideImageLoader());
@@ -235,6 +269,7 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
                             Toast.makeText(getActivity(),"点击了第" +( position+1)+"张图片", Toast.LENGTH_SHORT).show();
                         }
                     }).start();
+            banner.setVisibility(View.VISIBLE);
         }else{
             banner.setVisibility(View.GONE);
         }

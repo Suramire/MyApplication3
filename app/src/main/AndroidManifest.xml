@@ -41,7 +41,7 @@
                   android:theme="@style/Theme.AppCompat.NoActionBar"/>
         <service android:name=".service.PostService"/>
         <activity android:name=".activity.ReceiveActivity"/>
-
+        <activity android:name=".activity.NoteByTypeActivity"/>
     </application>
 
 </manifest>

@@ -14,4 +14,8 @@
         android:id="@+id/banner"
         android:layout_width="match_parent"
         android:layout_height="150dp" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/listview_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></android.support.v7.widget.RecyclerView>
 </LinearLayout>

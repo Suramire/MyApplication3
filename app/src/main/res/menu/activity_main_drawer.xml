@@ -11,9 +11,9 @@
             android:icon="@drawable/ic_menu_camera"
             android:title="回帖数："/>
         <item
-            android:id="@+id/nav_test"
+            android:id="@+id/nav_history"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Test"/>
+            android:title="历史记录"/>
     </group>
 
     <item android:title="高级选项">

@@ -1,7 +1,6 @@
 package com.suramire.myapplication;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,11 +27,11 @@ import android.widget.Toast;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import com.squareup.picasso.Picasso;
 import com.suramire.myapplication.activity.PhotoSelectActicity;
 import com.suramire.myapplication.activity.SearchActivity;
 import com.suramire.myapplication.activity.SettingsActivity;
 import com.suramire.myapplication.activity.SystemSettingsActivity;
-import com.suramire.myapplication.activity.TestActivity;
 import com.suramire.myapplication.fragment.FragmentIndex;
 import com.suramire.myapplication.fragment.FragmentNotification;
 import com.suramire.myapplication.fragment.FragmentRecommend;
@@ -44,10 +43,7 @@ import com.suramire.myapplication.util.SPUtils;
 import com.suramire.myapplication.view.MyViewPager;
 import com.xmut.sc.entity.User;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 import butterknife.Bind;
@@ -56,6 +52,7 @@ import butterknife.ButterKnife;
 import static com.suramire.myapplication.util.Constant.BASEURL;
 import static com.suramire.myapplication.util.Constant.URL;
 import static com.suramire.myapplication.util.Constant.userName;
+import static com.suramire.myapplication.util.L.e;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -82,10 +79,10 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUESTCODE && resultCode==PhotoSelectActicity.CODESUCCESS){
             //这里更新图片
-            L.e("返回结果为success,更新头像");
+            e("返回结果为success,更新头像");
             user_img.setImageBitmap(BitmapFactory.decodeFile(Constant.PICTUREPATH+Constant.userName+".png"));
         }else{
-            L.e("返回结果为fail,什么都不做");
+            e("返回结果为fail,什么都不做");
 
         }
     }
@@ -100,7 +97,7 @@ public class MainActivity extends AppCompatActivity
         String port = (String) SPUtils.get(this,"port","8080");
         BASEURL ="http://"+ip+":"+port+"/";
         URL = BASEURL+"bbs/GetResult?do=";
-        L.e("service ip:" + BASEURL);
+        e("service ip:" + BASEURL);
         //为抽屉菜单添加头部
         view = navigationView.inflateHeaderView(R.layout.nav_header_main);
         username_textview = view.findViewById(R.id.index_username_tv);
@@ -111,7 +108,7 @@ public class MainActivity extends AppCompatActivity
         //先判断是否登录
         uid = (int) SPUtils.get(this, "uid", 0);
         if (uid > 0) {
-            L.e("已登录@Main");
+            e("已登录@Main");
             //读取用户在线信息并显示
             user_img.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -146,48 +143,63 @@ public class MainActivity extends AppCompatActivity
                         // TODO: 2017/6/27 若用户有头像则显示用户头像
                         if(!"".equals(user.getImg())){
                             //有头像,连接服务器获取
-                            L.e("该用户有头像");
-                            HTTPUtil.getCall(Constant.BASEURL + "bbs/upload/" + userImg, new Callback() {
+                            e("该用户有头像");
+                            runOnUiThread(new Runnable() {
                                 @Override
-                                public void onFailure(Request request, IOException e) {
-
-                                }
-
-                                @Override
-                                public void onResponse(Response response) throws IOException {
-                                    InputStream inputStream1 = response.body().byteStream();
-                                    //FIXME 头像获取有问题
-                                    L.e("获取的头像字节流:" + inputStream1);
-                                    if(inputStream1!=null){
-                                        //请求成功时
-                                        File file = new File(Constant.PICTUREPATH,userImg);
-                                        FileOutputStream fileOutputStream = new FileOutputStream(file);
-                                        byte[] buffer = new byte[1024];
-                                        int len =0;
-                                        while ((len=inputStream1.read(buffer))!=-1){
-                                            fileOutputStream.write(buffer,0,len);
-                                        }
-                                        fileOutputStream.flush();
-                                        fileOutputStream.close();
-                                        inputStream1.close();
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH +userImg);
-//                                                L.e("读取本地图片 高度:"+bitmap.getHeight());
-
-                                                user_img.setImageBitmap(bitmap);
-                                            }
-                                        });
-                                    }
-
-
+                                public void run() {
+                                    L.e("图片路径:"+Constant.BASEURL + "bbs/upload/" + userImg);
+                                    Picasso.with(MainActivity.this)
+                                            .load(Constant.BASEURL + "bbs/upload/" + userImg)
+                                            .placeholder(R.drawable.def)
+                                            .resize(90,90)
+                                            .centerCrop()
+                                            .into(user_img);
                                 }
                             });
+
+//                            HTTPUtil.getCall(Constant.BASEURL + "bbs/upload/" + userImg, new Callback() {
+//                                @Override
+//                                public void onFailure(Request request, IOException e) {
+//
+//                                }
+//
+//                                @Override
+//                                public void onResponse(Response response) throws IOException {
+//                                    InputStream inputStream1 = response.body().byteStream();
+//                                    //FIXME 头像获取有问题
+//                                    L.e("获取的头像字节流:" + inputStream1);
+//                                    if(inputStream1!=null){
+//                                        //请求成功时
+//                                        File file = new File(Constant.PICTUREPATH,userImg);
+//                                        FileOutputStream fileOutputStream = new FileOutputStream(file);
+//                                        byte[] buffer = new byte[1024];
+//                                        int len =0;
+//                                        while ((len=inputStream1.read(buffer))!=-1){
+//                                            fileOutputStream.write(buffer,0,len);
+//                                        }
+//                                        fileOutputStream.flush();
+//                                        fileOutputStream.close();
+//                                        inputStream1.close();
+//                                        runOnUiThread(new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH +userImg);
+////                                                L.e("读取本地图片 高度:"+bitmap.getHeight());
+//
+//                                                user_img.setImageBitmap(bitmap);
+//                                            }
+//                                        });
+//                                    }
+//
+//
+//                                }
+//                            });
                         }else{
-                            L.e("该用户没有头像");
-                            Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH + "default.png");//todo 默认头像
-                            user_img.setImageBitmap(bitmap);
+                            e("该用户没有头像");
+//                            Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH + "default.png);" +
+//                                            "//todo 默认头像
+//                            user_img.setImageBitmap(bitmap);
+
                         }
 
                     }
@@ -230,7 +242,7 @@ public class MainActivity extends AppCompatActivity
                     Toast.makeText(MainActivity.this, "跳转到登录页面", Toast.LENGTH_SHORT).show();
                 }
             });
-            L.e("未登录@Main");
+            e("未登录@Main");
         }
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -272,6 +284,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Log.d("MainActivity", "item:" + item);
+
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
                         viewPager.setCurrentItem(0);
@@ -340,8 +353,9 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, "跳转到个人发表的帖子列表", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_replycount) {
             Toast.makeText(this, "跳转到个人回复帖子列表", Toast.LENGTH_SHORT).show();
-        } else if (id == R.id.nav_test) {
-            startActivity(new Intent(MainActivity.this, TestActivity.class));
+        } else if (id == R.id.nav_history) {
+            Toast.makeText(this, "这里跳转到历史记录", Toast.LENGTH_SHORT).show();
+//            startActivity(new Intent(MainActivity.this, TestActivity.class));
         } else if (id == R.id.nav_share) {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
         } else if (id == R.id.nav_systemsetting) {

@@ -139,6 +139,19 @@ public class ReceiveActivity extends BaseActivity {
                 if (!TextUtils.isEmpty(string)) {
                     //这边接收评论并显示
                     receiveList = JsonUtil.jsonToList(string, Receive.class);
+
+                    final int size = receiveList.size();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(size>0){
+                                getSupportActionBar().setTitle("共("+size+")条评论");
+                            }else{
+                                getSupportActionBar().setTitle("暂无评论");
+                            }
+                        }
+                    });
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
