@@ -7,14 +7,13 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.SystemClock;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.suramire.myapplication.MainActivity;
 import com.suramire.myapplication.R;
-import com.suramire.myapplication.activity.TestActivity;
+
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
 /**
  * Created by Suramire on 2017/6/23.
@@ -61,7 +60,9 @@ public class PostService extends Service {
         NotificationManager notificationManager =(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         Notification.Builder builder = new Notification.Builder(this);
         Intent intent2 = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent2,0);
+        intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent2.putExtra("index",2);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent2,FLAG_UPDATE_CURRENT);
         builder.setSmallIcon(R.drawable.ic_menu_camera)
                 .setTicker("收到一条新通知")
                 .setContentTitle("标题")

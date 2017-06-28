@@ -39,8 +39,8 @@ import com.suramire.myapplication.activity.NoteDetailActivity;
 import com.suramire.myapplication.entity.Type;
 import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.GlideImageLoader;
+import com.suramire.myapplication.util.GsonUtil;
 import com.suramire.myapplication.util.HTTPUtil;
-import com.suramire.myapplication.util.JsonUtil;
 import com.suramire.myapplication.util.SPUtils;
 import com.xmut.sc.entity.Note;
 import com.youth.banner.Banner;
@@ -145,7 +145,7 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
                     Log.d("FragmentIndex", "onResponse");
                     try {
                         String string = response.body().string();
-                        final List<Note> mNotes = JsonUtil.jsonToList(string, Note.class);
+                        final List<Note> mNotes = GsonUtil.jsonToList(string, Note.class);
                         indexCount += mNotes.size();//记录帖子数
                         final int mcount =mNotes.size();//本次刷新的数量
                         if (mcount==0){

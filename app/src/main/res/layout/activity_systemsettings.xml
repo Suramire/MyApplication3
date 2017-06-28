@@ -62,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="推送服务"/>
+            android:text="推送服务(手动开启)"/>
 
         <Switch
             android:id="@+id/sys_postswitch"

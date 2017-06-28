@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="该分类下没有内容哦"
-        android:textAlignment="textStart"
+        android:textAlignment="center"
         android:textSize="18sp"
         android:visibility="gone"/>
 

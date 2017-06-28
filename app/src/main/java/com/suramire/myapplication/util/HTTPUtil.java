@@ -15,7 +15,7 @@ import java.io.File;
 
 public class HTTPUtil {
     /**
-     * Post方式
+     * get方式
      * @param url
      * @return
      */

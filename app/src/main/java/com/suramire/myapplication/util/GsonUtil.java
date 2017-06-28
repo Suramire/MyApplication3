@@ -21,7 +21,7 @@ import java.util.List;
 
 
 
-public class JsonUtil {
+public class GsonUtil {
     /**
      * 根据json字符串转成单个对象
      * @param jsonString
@@ -52,7 +52,7 @@ public class JsonUtil {
                 list.add(gson.fromJson(elem, tClass));
             }
         }catch (Exception e){
-            Log.e("JsonUtil", "jsonToList: "+e);
+            Log.e("GsonUtil", "jsonToList: "+e);
         }
 
         return list;

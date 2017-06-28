@@ -24,7 +24,7 @@ import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
 import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.HTTPUtil;
-import com.suramire.myapplication.util.JsonUtil;
+import com.suramire.myapplication.util.GsonUtil;
 import com.suramire.myapplication.util.L;
 import com.xmut.sc.entity.Note;
 
@@ -165,7 +165,7 @@ public class SearchActivity extends BaseActivity {
                     String string = response.body().string();
                     L.e("搜索结果" + string);
                     if(!TextUtils.isEmpty(string)){
-                        final List<Note> mnotes = JsonUtil.jsonToList(string, Note.class);
+                        final List<Note> mnotes = GsonUtil.jsonToList(string, Note.class);
                         if(mnotes.size()>0){
                             runOnUiThread(new Runnable() {
                                 @Override

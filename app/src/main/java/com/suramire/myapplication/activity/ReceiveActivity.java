@@ -19,7 +19,7 @@ import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
 import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.HTTPUtil;
-import com.suramire.myapplication.util.JsonUtil;
+import com.suramire.myapplication.util.GsonUtil;
 import com.suramire.myapplication.util.L;
 import com.suramire.myapplication.util.SPUtils;
 import com.xmut.sc.entity.Receive;
@@ -80,7 +80,7 @@ public class ReceiveActivity extends BaseActivity {
                 receive.setUid(uid);
                 receive.setNid(nid);
                 //2 将此对象转成JSON字符串 传送给服务器
-                String jsonString = JsonUtil.objectToJson(receive);
+                String jsonString = GsonUtil.objectToJson(receive);
                 HTTPUtil.getCall(Constant.URL + "addreceive&nid=" + nid + "&json=" + jsonString, new Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
@@ -138,7 +138,7 @@ public class ReceiveActivity extends BaseActivity {
                 String string = response.body().string();
                 if (!TextUtils.isEmpty(string)) {
                     //这边接收评论并显示
-                    receiveList = JsonUtil.jsonToList(string, Receive.class);
+                    receiveList = GsonUtil.jsonToList(string, Receive.class);
 
                     final int size = receiveList.size();
                     runOnUiThread(new Runnable() {

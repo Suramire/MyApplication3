@@ -10,7 +10,6 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -36,12 +35,13 @@ import com.suramire.myapplication.fragment.FragmentIndex;
 import com.suramire.myapplication.fragment.FragmentNotification;
 import com.suramire.myapplication.fragment.FragmentRecommend;
 import com.suramire.myapplication.util.Constant;
+import com.suramire.myapplication.util.GsonUtil;
 import com.suramire.myapplication.util.HTTPUtil;
-import com.suramire.myapplication.util.JsonUtil;
 import com.suramire.myapplication.util.L;
 import com.suramire.myapplication.util.SPUtils;
 import com.suramire.myapplication.view.MyViewPager;
 import com.xmut.sc.entity.User;
+import com.zjw.user.LoginActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,6 +73,8 @@ public class MainActivity extends AppCompatActivity
     private TextView username_textview;
     private ImageView user_img;
     private int uid;
+    private int index;
+    private int[] ids;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -80,11 +82,18 @@ public class MainActivity extends AppCompatActivity
         if(requestCode == REQUESTCODE && resultCode==PhotoSelectActicity.CODESUCCESS){
             //这里更新图片
             e("返回结果为success,更新头像");
-            user_img.setImageBitmap(BitmapFactory.decodeFile(Constant.PICTUREPATH+Constant.userName+".png"));
-        }else{
-            e("返回结果为fail,什么都不做");
-
+            user_img.setImageBitmap(BitmapFactory.decodeFile(Constant.PICTUREPATH+ userName+".png"));
         }
+//        else if(requestCode ==REQUESTCODE && resultCode ==SystemSettingsActivity.RESULTCODE){
+//            e("重启activiy");
+//            finish();
+//            startActivity(getIntent());
+//
+//        }
+        else{
+            e("返回结果为fail,什么都不做");
+        }
+
     }
 
     @Override
@@ -92,6 +101,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        ids = new int[]{R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications};
+        //表示打开应用时该显示哪页 接收推送时值为2即显示通知页
+        L.e("viewpager下标:" + index);
         setSupportActionBar(toolbar);
         String ip =(String) SPUtils.get(this,"ip","10.0.2.2");
         String port = (String) SPUtils.get(this,"port","8080");
@@ -104,7 +116,7 @@ public class MainActivity extends AppCompatActivity
         user_img = view.findViewById(R.id.imageView);
 
         // TODO: 2017/6/27 添加网络连接判断
-        SPUtils.put(this,"uid",1);
+//        SPUtils.put(this,"uid",1);
         //先判断是否登录
         uid = (int) SPUtils.get(this, "uid", 0);
         if (uid > 0) {
@@ -128,34 +140,37 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onResponse(Response response) throws IOException {
-                    String jsonString = response.body().string();
-                    if(!TextUtils.isEmpty(jsonString)){
-                        final User user = (User) JsonUtil.jsonToObject(jsonString, User.class);
-                        userName = user.getUsername();
-                        userImg = user.getImg();
-                        username_textview.setText(userName);
-                        username_textview.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Log.d("MainActivity", "已登录状态,跳转到个人中心");
-                            }
-                        });
-                        // TODO: 2017/6/27 若用户有头像则显示用户头像
-                        if(!"".equals(user.getImg())){
-                            //有头像,连接服务器获取
-                            e("该用户有头像");
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    L.e("图片路径:"+Constant.BASEURL + "bbs/upload/" + userImg);
-                                    Picasso.with(MainActivity.this)
-                                            .load(Constant.BASEURL + "bbs/upload/" + userImg)
-                                            .placeholder(R.drawable.def)
-                                            .resize(90,90)
-                                            .centerCrop()
-                                            .into(user_img);
-                                }
-                            });
+                    final String jsonString = response.body().string();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(!TextUtils.isEmpty(jsonString)){
+                                final User user = (User) GsonUtil.jsonToObject(jsonString, User.class);
+                                userName = user.getUsername();
+                                userImg = user.getImg();
+                                username_textview.setText(userName);
+                                username_textview.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Log.d("MainActivity", "已登录状态,跳转到个人中心");
+                                    }
+                                });
+                                // TODO: 2017/6/27 若用户有头像则显示用户头像
+                                if(!"".equals(user.getImg())){
+                                    //有头像,连接服务器获取
+                                    e("该用户有头像");
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            L.e("图片路径:"+Constant.BASEURL + "bbs/upload/" + userImg);
+                                            Picasso.with(MainActivity.this)
+                                                    .load(Constant.BASEURL + "bbs/upload/" + userImg)
+                                                    .placeholder(R.drawable.def)
+                                                    .resize(90,90)
+                                                    .centerCrop()
+                                                    .into(user_img);
+                                        }
+                                    });
 
 //                            HTTPUtil.getCall(Constant.BASEURL + "bbs/upload/" + userImg, new Callback() {
 //                                @Override
@@ -194,15 +209,18 @@ public class MainActivity extends AppCompatActivity
 //
 //                                }
 //                            });
-                        }else{
-                            e("该用户没有头像");
+                                }else{
+                                    e("该用户没有头像");
 //                            Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH + "default.png);" +
 //                                            "//todo 默认头像
 //                            user_img.setImageBitmap(bitmap);
 
-                        }
+                                }
 
-                    }
+                            }
+                        }
+                    });
+
                     // TODO: 获取结果为空时的异常处理
                 }
             });
@@ -239,7 +257,9 @@ public class MainActivity extends AppCompatActivity
             username_textview.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(MainActivity.this, "跳转到登录页面", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+//                    Toast.makeText(MainActivity.this, "跳转到登录页面", Toast.LENGTH_SHORT).show();
+
                 }
             });
             e("未登录@Main");
@@ -266,8 +286,7 @@ public class MainActivity extends AppCompatActivity
         fragments.add(fragmentindex);
         fragments.add(fragment);
         fragments.add(fragment3);
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+        viewpager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
                 return fragments.get(position);
@@ -278,6 +297,7 @@ public class MainActivity extends AppCompatActivity
                 return fragments.size();
             }
         });
+
         //底部导航事件
         BottomNavigationView bottomnavigationview = (BottomNavigationView) findViewById(R.id.bottomnavigationview);
         bottomnavigationview.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -287,13 +307,13 @@ public class MainActivity extends AppCompatActivity
 
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
-                        viewPager.setCurrentItem(0);
+                        viewpager.setCurrentItem(0);
                         return true;
                     case R.id.navigation_dashboard:
-                        viewPager.setCurrentItem(1);
+                        viewpager.setCurrentItem(1);
                         return true;
                     case R.id.navigation_notifications:
-                        viewPager.setCurrentItem(3);
+                        viewpager.setCurrentItem(3);
                         return true;
                 }
                 return true;
@@ -359,7 +379,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
         } else if (id == R.id.nav_systemsetting) {
-            startActivity(new Intent(MainActivity.this, SystemSettingsActivity.class));
+            startActivityForResult(new Intent(MainActivity.this, SystemSettingsActivity.class),REQUESTCODE);
         } else if (id == R.id.nav_signout) {
             if(uid ==0){
                 //未登录
@@ -381,7 +401,13 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-
-
-
+    @Override
+    protected void onPostResume() {
+        L.e("onPostResume");
+        index = getIntent().getIntExtra("index", 0);
+        L.e("index:" + index);
+        viewpager.setCurrentItem(index);
+        bottomnavigationview.setSelectedItemId(ids[index]);
+        super.onPostResume();
+    }
 }

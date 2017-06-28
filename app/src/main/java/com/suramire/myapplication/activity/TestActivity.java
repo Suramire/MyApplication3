@@ -31,9 +31,10 @@ import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.MainActivity;
 import com.suramire.myapplication.R;
-import com.suramire.myapplication.util.FileUtil;
-import com.suramire.myapplication.util.JsonUtil;
 import com.suramire.myapplication.util.Constant;
+import com.suramire.myapplication.util.FileUtil;
+import com.suramire.myapplication.util.GsonUtil;
+import com.suramire.myapplication.util.L;
 import com.xmut.sc.entity.Note;
 
 import java.io.File;
@@ -81,6 +82,8 @@ public class TestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
         ButterKnife.bind(this);
+        int index = getIntent().getIntExtra("index", 0);
+        L.e("viewpager下标:" + index);
         okHttpClient = new OkHttpClient();
         builder = new Request.Builder();
         textView = (TextView) findViewById(R.id.test_textview);
@@ -105,7 +108,7 @@ public class TestActivity extends AppCompatActivity {
                 //请求成功时
                 final String string = response.body().string();
                 if(!TextUtils.isEmpty(string)){
-                    List<Note> jsonList = JsonUtil.jsonToList(string,Note.class);
+                    List<Note> jsonList = GsonUtil.jsonToList(string,Note.class);
                     Log.d("TestActivity", jsonList.size()+"");
                     String mString = "";
                     for (Note note :
@@ -154,7 +157,7 @@ public class TestActivity extends AppCompatActivity {
                     //请求成功时
                     final String string = response.body().string();
                     if(!TextUtils.isEmpty(string)){
-                        List<Note> jsonList = JsonUtil.jsonToList(string,Note.class);
+                        List<Note> jsonList = GsonUtil.jsonToList(string,Note.class);
                         Log.d("TestActivity", jsonList.size()+"");
                         String mString = "";
                         for (Note note :
@@ -207,7 +210,7 @@ public class TestActivity extends AppCompatActivity {
                 //请求成功时
                 final String string = response.body().string();
                 if(!TextUtils.isEmpty(string)){
-                    List<Note> jsonList = JsonUtil.jsonToList(string,Note.class);
+                    List<Note> jsonList = GsonUtil.jsonToList(string,Note.class);
                     Log.d("TestActivity", jsonList.size()+"");
                     String mString = "";
                     for (Note note :

@@ -28,8 +28,8 @@ import com.suramire.myapplication.R;
 import com.suramire.myapplication.activity.NoteDetailActivity;
 import com.suramire.myapplication.test.Student;
 import com.suramire.myapplication.util.Constant;
+import com.suramire.myapplication.util.GsonUtil;
 import com.suramire.myapplication.util.HTTPUtil;
-import com.suramire.myapplication.util.JsonUtil;
 import com.suramire.myapplication.util.L;
 import com.suramire.myapplication.util.SPUtils;
 import com.xmut.sc.entity.Note;
@@ -151,7 +151,7 @@ public class FragmentRecommend extends Fragment {
                 public void onResponse(Response response) throws IOException {
                     Log.d(TAG, "onResponse: ");
 //                    Log.d("FragmentRecommend", response.body().string());
-                    mnotes = JsonUtil.jsonToList(response.body().string(), Note.class);
+                    mnotes = GsonUtil.jsonToList(response.body().string(), Note.class);
                     if(mnotes.size()>0){
                         Log.d("FragmentRecommend", "mnotes.size():" + mnotes.size());
                         getActivity().runOnUiThread(new Runnable() {

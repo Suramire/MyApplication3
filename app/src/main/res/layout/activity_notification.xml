@@ -9,10 +9,18 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         />
+    <ListView
+        android:id="@+id/notificationlistview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
     <TextView
-        android:id="@+id/textView10"
+        android:id="@+id/tv_empty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="这里显示通知内容"/>
+        android:text="暂无通知"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:visibility="gone"/>
+
 </LinearLayout>

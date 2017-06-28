@@ -17,7 +17,7 @@ import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
 import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.HTTPUtil;
-import com.suramire.myapplication.util.JsonUtil;
+import com.suramire.myapplication.util.GsonUtil;
 import com.suramire.myapplication.util.L;
 import com.xmut.sc.entity.Note;
 
@@ -57,7 +57,7 @@ public class NoteByTypeActivity extends BaseActivity {
                 String string = response.body().string();
                 if (!TextUtils.isEmpty(string)) {
                     try {
-                        final List<Note> notes = JsonUtil.jsonToList(string, Note.class);
+                        final List<Note> notes = GsonUtil.jsonToList(string, Note.class);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
