@@ -4,6 +4,12 @@
     <color name="colorPrimaryDark">#0099FF</color>
     <color name="colorAccent">#F0F0F0</color>
     <color name="blue_light">#5675de</color>
+    <!--zzw-->
     <color name="divider">@color/grey</color>
     <color name="grey">#e0e0e0</color>
+    <!--zxf-->
+    <color name="pink">#FF6EC7</color>
+    <color name="gray">#545454</color>
+    <color name="blue">#C0D9D9</color>
+    <color name="white">#ffffff </color>
 </resources>

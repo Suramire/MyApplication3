@@ -115,12 +115,12 @@ public class RegisterActivity extends BaseActivity {
                 dialog.dismiss();
                 String msgobj = msg.obj.toString();
                 if (msgobj.equals("t")) {
-                    Toast.makeText(RegisterActivity.this, "注册成功", 0).show();
+                    Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent();
                     intent.setClass(RegisterActivity.this, LoginActivity.class);
                     startActivity(intent);
                 } else {
-                    Toast.makeText(RegisterActivity.this, "注册失败", 0).show();
+                    Toast.makeText(RegisterActivity.this, "注册失败", Toast.LENGTH_SHORT).show();
                 }
                 super.handleMessage(msg);
             }

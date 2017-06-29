@@ -21,7 +21,7 @@
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_manage"
-                android:title="个人信息设置"/>
+                android:title="个人信息"/>
             <item
                 android:id="@+id/nav_systemsetting"
                 android:icon="@drawable/ic_menu_send"

@@ -52,6 +52,11 @@
         <activity android:name="com.zjw.user.LoginActivity"/>
         <activity android:name="com.zjw.user.RegisterActivity"/>
         <activity android:name="com.zjw.admin.AdminLoginActivity"/>
+
+        <!--zxf-->
+        <activity android:name="com.zxf.scode.Login"/>
+        <activity android:name="com.zxf.scode.Information"/>
+        <activity android:name="com.zxf.scode.MyInformation"/>
     </application>
 
 </manifest>

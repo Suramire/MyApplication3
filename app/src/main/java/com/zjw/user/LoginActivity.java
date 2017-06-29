@@ -23,6 +23,9 @@ import android.widget.Toast;
 import com.suramire.myapplication.MainActivity;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
+import com.suramire.myapplication.util.Constant;
+import com.suramire.myapplication.util.L;
+import com.suramire.myapplication.util.SPUtils;
 import com.zjw.admin.AdminLoginActivity;
 import com.zjw.web.Operaton;
 
@@ -63,6 +66,7 @@ public class LoginActivity extends BaseActivity {
 
         String name = login_sp.getString("username", "");
         String pwd = login_sp.getString("password", "");
+
         choseRemember = login_sp.getBoolean("ischeck", false);
         choseAutologin = login_sp.getBoolean("autologin", false);
 
@@ -91,7 +95,13 @@ public class LoginActivity extends BaseActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // TODO Auto-generated method stub
                 if (!choseAutologin) {
+
+                    //修改 保存用户名之前要先获取用户名
+                    userName = mAccount.getText().toString().trim();
+                    userPwd = mPwd.getText().toString().trim();
                     Editor editor=login_sp.edit();
+                    //修改 这里要保存记住密码是否被勾选
+                    editor.putBoolean("ischeck", true);
                     editor.putString("username", userName);
                     editor.putString("password", userPwd);
                     editor.commit();
@@ -104,10 +114,14 @@ public class LoginActivity extends BaseActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // TODO Auto-generated method stub
                 if (!choseRemember) {
+                    userName = mAccount.getText().toString().trim();
+                    userPwd = mPwd.getText().toString().trim();
                     Editor editor=login_sp.edit();
+                    editor.putBoolean("ischeck", true);
                     editor.putString("username", userName);
                     editor.putString("password", userPwd);
                     editor.commit();
+
                 }
             }
         });
@@ -154,6 +168,7 @@ public class LoginActivity extends BaseActivity {
         public void login() {
             userName = mAccount.getText().toString().trim();
             userPwd = mPwd.getText().toString().trim();
+
             if (isUserNameAndPwdValid()) {
 
                 dialog.show();
@@ -176,8 +191,19 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void handleMessage(Message msg) {
                 String string = (String) msg.obj;
+                L.e("登录结果:" + string);
                 dialog.dismiss();
-                Toast.makeText(LoginActivity.this, string, Toast.LENGTH_SHORT).show();
+                if(string.equals("0")){
+                    Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+                    int uid = Integer.parseInt(string);
+                    SPUtils.put(LoginActivity.this,"uid",uid);
+                    setResult(Constant.LOGINSUCCESS);
+                    finish();
+                }
+
+                ;
                 super.handleMessage(msg);
             }
         };

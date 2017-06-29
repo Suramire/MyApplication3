@@ -11,6 +11,7 @@
         <item>你的名字</item>
         <item>匿名用户</item>
     </string-array>
+    <!--zjw-->
     <string name="register">注册</string>
     <string name="login">登录</string>
     <string name="logout">注销</string>
@@ -31,4 +32,26 @@
     <string name="submint">确定</string>
     <string name="cancle">取消</string>
     <string name="admin">管理员登录>>></string>
+
+    <!--zxf-->
+    <string name="infor_back">返回</string>
+    <string name="information">个人信息</string>
+    <string name="infor_save">保存</string>
+    <string name="infor_username">用户名</string>
+    <string name="infor_sex">性别:</string>
+    <string name="infor_sex_man">男</string>
+    <string name="infor_sex_woman">女</string>
+    <string name="infor_birth">出生年月:</string>
+    <string name="infor_email">电子邮箱:</string>
+    <string name="infor_phone">手机:</string>
+    <string name="infor_hobbyone">兴趣1:</string>
+    <string name="infor_hobbytwo">兴趣2:</string>
+    <string name="infor_hobbythree">兴趣3:</string>
+    <string name="infor_personality">性格特征:</string>
+    <string name="my_login">登录注册</string>
+    <string name="my_mypost">我的帖子</string>
+    <string name="my_help">反馈帮助中心</string>
+    <string name="my_collect">我的收藏</string>
+    <string name="my_setting">设置</string>
+    <string name="look_alter">修改</string>
 </resources>

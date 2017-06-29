@@ -19,6 +19,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.util.Constant;
+import com.suramire.myapplication.util.DateUtil;
 import com.suramire.myapplication.util.L;
 import com.xmut.sc.entity.Note;
 
@@ -121,7 +122,7 @@ public class FragmentNotification extends Fragment {
                                         helper.setText(R.id.n_title, item.getTitle())
                                                 .setText(R.id.n_content, item.getContent())
                                                 .setText(R.id.n_username, spl[1])
-                                                .setText(R.id.n_publishtime, item.getPublishtime() + "")
+                                                .setText(R.id.n_publishtime, DateUtil.dateToString(item.getPublishtime()) + "")
                                                 .setText(R.id.n_count, "浏览量：" + item.getCount())
                                                 .setText(R.id.n_type, spl[0] + " " + item.getTag());
                                         helper.setOnClickListener(R.id.n_content, new View.OnClickListener() {

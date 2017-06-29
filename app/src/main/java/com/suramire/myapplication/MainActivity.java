@@ -43,6 +43,7 @@ import com.suramire.myapplication.util.SPUtils;
 import com.suramire.myapplication.view.MyViewPager;
 import com.xmut.sc.entity.User;
 import com.zjw.user.LoginActivity;
+import com.zxf.scode.Information;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -86,12 +87,19 @@ public class MainActivity extends AppCompatActivity
             e("返回结果为success,更新头像");
             user_img.setImageBitmap(BitmapFactory.decodeFile(Constant.PICTUREPATH+ userName+".png"));
         }
-//        else if(requestCode ==REQUESTCODE && resultCode ==SystemSettingsActivity.RESULTCODE){
-//            e("重启activiy");
-//            finish();
-//            startActivity(getIntent());
-//
-//        }
+        else if(requestCode ==REQUESTCODE && resultCode ==Constant.UPDATESUCCESS){
+            e("更新用户信息后重启activity,重新登录");
+            SPUtils.put(this,"uid",0);
+            Constant.isDestory = true;
+            finish();
+            startActivity(getIntent());
+
+        }else if(requestCode ==REQUESTCODE && resultCode == Constant.LOGINSUCCESS){
+            //登录成功 重启activity
+            Constant.isDestory = true;
+            finish();
+            startActivity(getIntent());
+        }
         else{
             e("返回结果为fail,什么都不做");
         }
@@ -148,6 +156,7 @@ public class MainActivity extends AppCompatActivity
                         public void run() {
                             if(!TextUtils.isEmpty(jsonString)){
                                 final User user = (User) GsonUtil.jsonToObject(jsonString, User.class);
+                                Constant.user = user;
                                 userName = user.getUsername();
                                 userImg = user.getImg();
                                 username_textview.setText(userName);
@@ -259,7 +268,7 @@ public class MainActivity extends AppCompatActivity
             username_textview.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    startActivityForResult(new Intent(MainActivity.this, LoginActivity.class),MainActivity.REQUESTCODE);
 //                    Toast.makeText(MainActivity.this, "跳转到登录页面", Toast.LENGTH_SHORT).show();
 
                 }
@@ -387,7 +396,7 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, "这里跳转到历史记录", Toast.LENGTH_SHORT).show();
 //            startActivity(new Intent(MainActivity.this, TestActivity.class));
         } else if (id == R.id.nav_share) {
-            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+            startActivityForResult(new Intent(MainActivity.this, Information.class),MainActivity.REQUESTCODE);
         } else if (id == R.id.nav_systemsetting) {
             startActivityForResult(new Intent(MainActivity.this, SystemSettingsActivity.class),REQUESTCODE);
         } else if (id == R.id.nav_signout) {

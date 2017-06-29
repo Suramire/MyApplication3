@@ -8,10 +8,13 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.classic.adapter.BaseAdapterHelper;
 import com.classic.adapter.CommonAdapter;
@@ -20,8 +23,10 @@ import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCal
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.nineoldandroids.animation.ValueAnimator;
 import com.nineoldandroids.view.ViewHelper;
+import com.squareup.picasso.Picasso;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
+import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.L;
 import com.xmut.sc.entity.Note;
 
@@ -49,6 +54,7 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
     Toolbar toolbar2;
     private ActionBar actionBar;
     private boolean isHide;
+    private ImageView imageView;
 
 
     @Override
@@ -58,6 +64,8 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
         ButterKnife.bind(this);
         setSupportActionBar(toolbar2);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        final View picture = View.inflate(this, R.layout.header_notedetail, null);
+        imageView = picture.findViewById(R.id.imageView4);
         final Note note = (Note) getIntent().getSerializableExtra("note");
         List<Note> notes = new ArrayList<>();
         notes.add(note);
@@ -70,10 +78,17 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
                         .setText(R.id.detail_content, item.getContent())
                         .setText(R.id.detail_tag, item.getTag());
                 toolbar2.setTitle(item.getTitle());
+                String img = item.getImg();
+                if(!TextUtils.isEmpty(img)){
+                    Picasso.with(NoteDetailActivity.this).load(Constant.BASEURL + "bbs/upload/" + img).into(imageView);
+                    L.e("该帖子有配图");
+                }else{
+                    imageView.setVisibility(View.GONE);
+                }
             }
         });
         final View header = View.inflate(this, R.layout.header_blank, null);
-        final View picture = View.inflate(this, R.layout.header_notedetail, null);
+
 //        View footer = View.inflate(this, R.layout.footer_notedetail, null);
         detailListview.setEmptyView(detailEmpty);
         detailListview.addHeaderView(header);
@@ -89,7 +104,7 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
 //                        viewPager.setCurrentItem(0);
                         return false;
                     case R.id.navigation_dashboard:
-//                        viewPager.setCurrentItem(1);
+                        Toast.makeText(NoteDetailActivity.this, "这里响应收藏操作", Toast.LENGTH_SHORT).show();
                         return false;
                     case R.id.navigation_notifications:
 //                        viewPager.setCurrentItem(3);

@@ -1,6 +1,7 @@
 package com.suramire.myapplication.util;
 
 import com.xmut.sc.entity.Note;
+import com.xmut.sc.entity.User;
 
 import java.util.List;
 
@@ -24,8 +25,11 @@ public class Constant {
     public final static  int DELAY = 300;//动画延迟
     public final static int NUM = 100;//随机数范围
     public final static String URLNOTIFICATION = BASEURL+"bbs/Notification";//链接服务器
+    public final static int UPDATESUCCESS = 0x9;//成功修改用户信息
+    public final static int LOGINSUCCESS = 0x10;//成功修改用户信息
     /*全局变量区*/
     public static String userName = "";//保存当前登录的用户名
+    public static User user;//保存已登录的用户
     public static Note note;//当前查看的帖子
     public static int indexCount;//首页已加载帖子数量
     public static List<Note> notes;//已缓冲的List<Note>

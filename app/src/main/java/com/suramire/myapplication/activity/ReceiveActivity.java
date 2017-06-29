@@ -18,6 +18,7 @@ import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
 import com.suramire.myapplication.util.Constant;
+import com.suramire.myapplication.util.DateUtil;
 import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.GsonUtil;
 import com.suramire.myapplication.util.L;
@@ -162,7 +163,7 @@ public class ReceiveActivity extends BaseActivity {
                                     String[] split = item.getContent().split(Constant.SPLIT);
                                     String name = split[0];
                                     String content = split[1];
-                                    helper.setText(R.id.receive_time, item.getReceivetime() + "")
+                                    helper.setText(R.id.receive_time, DateUtil.dateToString(item.getReceivetime()) + "")
                                             .setText(R.id.receive_content, content)
                                             .setText(R.id.receice_name, name);
 //
