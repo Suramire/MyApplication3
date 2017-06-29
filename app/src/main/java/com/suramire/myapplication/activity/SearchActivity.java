@@ -65,9 +65,9 @@ public class SearchActivity extends BaseActivity {
 
         // TODO: 2017/6/26 这里读取服务类的热门分类或关键字
         ArrayList<String> strings = new ArrayList<>();
-        strings.add("男默女泪");
-        strings.add("UC");
-        strings.add("正文");
+        strings.add("为什么");
+        strings.add("怎样");
+        strings.add("学会");
         initListView();
 
         searchHotRecyclerview.setLayoutManager(new LinearLayoutManager(SearchActivity.this, LinearLayoutManager.HORIZONTAL, false));

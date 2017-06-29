@@ -15,6 +15,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
+import com.suramire.myapplication.util.DateUtil;
 import com.suramire.myapplication.util.GsonUtil;
 import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.L;
@@ -63,32 +64,39 @@ public class HistoryActivity extends BaseActivity {
                     String string = response.body().string();
                     if(!TextUtils.isEmpty(string)){
                         mNotes = GsonUtil.jsonToList(string, Note.class);
-                        if(mNotes.size()>0){
-                            histotyListview.setAdapter(new CommonAdapter<Note>(HistoryActivity.this,R.layout.item_index, mNotes) {
-                                @Override
-                                public void onUpdate(BaseAdapterHelper helper, Note item, final int position) {
-                                    helper.setText(R.id.index_tag, item.getTag())
-                                            .setText(R.id.index_title,item.getTitle())
-                                            .setText(R.id.index_content,item.getContent())
-                                            .setText(R.id.index_count,item.getCount()+"");
-                                    helper.setOnClickListener(R.id.index_title, new View.OnClickListener() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(mNotes.size()>0){
+                                    histotyListview.setAdapter(new CommonAdapter<Note>(HistoryActivity.this,R.layout.item_index, mNotes) {
                                         @Override
-                                        public void onClick(View view) {
-                                            Bundle bundle = new Bundle();
-                                            bundle.putSerializable("note",mNotes.get(position));
-                                            startActivity(new Intent(HistoryActivity.this, NoteDetailActivity.class).putExtras(bundle));
-                                        }
-                                    }).setOnClickListener(R.id.index_content, new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            Bundle bundle = new Bundle();
-                                            bundle.putSerializable("note",mNotes.get(position));
-                                            startActivity(new Intent(HistoryActivity.this, NoteDetailActivity.class).putExtras(bundle));
+                                        public void onUpdate(BaseAdapterHelper helper, Note item, final int position) {
+                                            helper.setText(R.id.index_tag, item.getTag())
+                                                    .setText(R.id.index_title,item.getTitle())
+                                                    .setText(R.id.index_content,item.getContent())
+                                                    .setText(R.id.textView3, DateUtil.dateToString(item.getViewtime()))
+                                                    .setText(R.id.index_count,item.getCount()+"");
+                                            helper.setOnClickListener(R.id.index_title, new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putSerializable("note",mNotes.get(position));
+                                                    startActivity(new Intent(HistoryActivity.this, NoteDetailActivity.class).putExtras(bundle));
+                                                }
+                                            }).setOnClickListener(R.id.index_content, new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putSerializable("note",mNotes.get(position));
+                                                    startActivity(new Intent(HistoryActivity.this, NoteDetailActivity.class).putExtras(bundle));
+                                                }
+                                            });
                                         }
                                     });
                                 }
-                            });
-                        }
+                            }
+                        });
+
                     }
                 }
             });

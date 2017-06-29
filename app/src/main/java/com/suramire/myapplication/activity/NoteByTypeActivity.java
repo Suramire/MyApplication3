@@ -43,7 +43,8 @@ public class NoteByTypeActivity extends BaseActivity {
         setContentView(R.layout.activity_notebytype);
         ButterKnife.bind(this);
         int index = getIntent().getIntExtra("index", 0);
-        getSupportActionBar().setTitle("分类" + (index + 1));
+        String[] stringArray = getResources().getStringArray(R.array.types);
+        getSupportActionBar().setTitle(stringArray[index]);
         listviewBytype.setEmptyView(tvEmpty);
         //根据下标获得帖子数据
         HTTPUtil.getCall(Constant.URL + "getNoteByTypeId&typeid=" + index, new Callback() {

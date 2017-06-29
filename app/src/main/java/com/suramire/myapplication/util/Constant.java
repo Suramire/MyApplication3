@@ -27,6 +27,7 @@ public class Constant {
     public final static String URLNOTIFICATION = BASEURL+"bbs/Notification";//链接服务器
     public final static int UPDATESUCCESS = 0x9;//成功修改用户信息
     public final static int LOGINSUCCESS = 0x10;//成功修改用户信息
+    public final static int CHANGEUCCESS = 0x11;//成功修改系统设置
     /*全局变量区*/
     public static String userName = "";//保存当前登录的用户名
     public static User user;//保存已登录的用户

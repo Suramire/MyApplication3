@@ -20,7 +20,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name"
+            android:label="Source Code BBS"
             android:theme="@style/AppTheme.NoActionBar"
             android:launchMode="singleTop">
             <intent-filter>
@@ -34,7 +34,8 @@
         <activity android:name=".activity.NoteDetailActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".activity.SearchActivity"/>
-        <activity android:name=".activity.SettingsActivity"/>
+        <activity android:name=".activity.SettingsActivity"
+            android:label="系统设置"/>
         <activity android:name=".activity.TestActivity"/>
         <activity android:name=".activity.SystemSettingsActivity"/>
         <activity android:name=".activity.PhotoSelectActicity"/>
@@ -47,7 +48,10 @@
         <service android:name=".service.PostService"/>
         <activity android:name=".activity.ReceiveActivity"/>
         <activity android:name=".activity.NoteByTypeActivity"/>
-        <activity android:name=".activity.HistoryActivity"/>
+        <activity android:name=".activity.HistoryActivity"
+            android:label="历史记录"/>
+        <activity android:name=".activity.UserReceive"
+            android:label="回帖记录"/>
 
         <!--zjw-->
         <activity android:name="com.zjw.user.LoginActivity"/>
@@ -56,8 +60,18 @@
 
         <!--zxf-->
         <activity android:name="com.zxf.scode.Login"/>
-        <activity android:name="com.zxf.scode.Information"/>
+        <activity android:name="com.zxf.scode.Information"
+            android:label="个人信息修改"/>
         <activity android:name="com.zxf.scode.MyInformation"/>
+
+        <!--zlw-->
+        <activity android:name="com.zlw.PostedActivity"
+                  android:label="发帖记录"
+            />
+        <activity android:name="com.zlw.updateNote"
+            android:label="编辑帖子"/>
+        <activity android:name="com.zlw.Operation"
+            android:label="发表新帖子"/>
     </application>
 
 </manifest>

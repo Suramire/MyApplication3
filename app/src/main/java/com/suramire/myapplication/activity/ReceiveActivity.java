@@ -146,7 +146,7 @@ public class ReceiveActivity extends BaseActivity {
                         @Override
                         public void run() {
                             if(size>0){
-                                getSupportActionBar().setTitle("共("+size+")条评论");
+                                getSupportActionBar().setTitle("评论("+size+")");
                             }else{
                                 getSupportActionBar().setTitle("暂无评论");
                             }

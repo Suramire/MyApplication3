@@ -82,6 +82,8 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
     private RelativeLayout bottomlayout;
     private View headerview;
     private RecyclerView recyclerView;
+    private int[] images;
+    private List<Note> mNotes;
 
     // TODO: 2017/6/26 首页轮播图动态获取,没有则不显示
     @Nullable
@@ -90,6 +92,7 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
         View view = inflater.inflate(R.layout.activity_index, container, false);
         activity = (AppCompatActivity) getActivity();
         headerBanner = View.inflate(activity, R.layout.header_banner,null);
+        images = new int[]{R.drawable.a4x, R.drawable.a4y, R.drawable.a4z, R.drawable.a5a, R.drawable.a5b, R.drawable.a5_};
         ab = activity.getSupportActionBar();
         Log.d("FragmentIndex", "ab:" + ab);
 //        headerview = View.inflate(activity, R.layout.header_blank, null);
@@ -145,9 +148,9 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
                     Log.d("FragmentIndex", "onResponse");
                     try {
                         String string = response.body().string();
-                        final List<Note> mNotes = GsonUtil.jsonToList(string, Note.class);
+                        mNotes = GsonUtil.jsonToList(string, Note.class);
                         indexCount += mNotes.size();//记录帖子数
-                        final int mcount =mNotes.size();//本次刷新的数量
+                        final int mcount = mNotes.size();//本次刷新的数量
                         if (mcount==0){
                             SystemClock.sleep(1000);
                             handler.sendEmptyMessage(mcount);//取消下拉进度圈
@@ -219,10 +222,12 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
         banner = headerBanner.findViewById(R.id.banner);
         recyclerView = headerBanner.findViewById(R.id.listview_type);
         List<Type> types = new ArrayList<>();
-        for(int i=0;i<6;i++){
-            Type t = new Type(R.drawable.a4x,"类型"+(i+1));
+        String[] stringArray = getResources().getStringArray(R.array.types);
+        for (int i = 0; i < stringArray.length; i++) {
+            Type t = new Type(images[i],stringArray[i]);
             types.add(t);
         }
+
         recyclerView.setAdapter(new CommonRecyclerAdapter<Type>(activity,R.layout.item_type,types) {
 
             @Override
@@ -253,11 +258,15 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
             images.add(R.drawable.imgb);
             images.add(R.drawable.imgc);
             images.add(R.drawable.imgd);
-            images.add(R.drawable.imge);
 
             List<String> stringList = new ArrayList<>();
             for(int i=0;i<images.size();i++){
-                stringList.add("这是是图片对于的标题"+(i+1));
+                try{
+                    stringList.add("热门内容"+(i+1));
+                }catch (Exception e){
+
+                }
+
             }
 
             banner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR_TITLE_INSIDE)
@@ -266,7 +275,9 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
                     .setOnBannerListener(new OnBannerListener() {
                         @Override
                         public void OnBannerClick(int position) {
-                            Toast.makeText(getActivity(),"点击了第" +( position+1)+"张图片", Toast.LENGTH_SHORT).show();
+
+//                            Toast.makeText(getActivity(),"点击了第" +( position+1)+"张图片", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(activity,NoteDetailActivity.class).putExtra("note",notes.get(position)));
                         }
                     }).start();
             banner.setVisibility(View.VISIBLE);

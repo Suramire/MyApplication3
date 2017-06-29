@@ -35,10 +35,10 @@ import butterknife.ButterKnife;
  */
 
 public class FragmentNotification extends Fragment {
-    @Bind(R.id.tv_empty)
-    TextView tvEmtpy;
+//    @Bind(R.id.tv_empty)
+//    TextView tvEmtpy;
     private ListView listView;
-    private CommonAdapter<Note> adapter;
+//    private CommonAdapter<Note> adapter;
 
     @Nullable
     @Override
@@ -49,12 +49,12 @@ public class FragmentNotification extends Fragment {
         //根据帖子编号随机查询帖子
         double r = Math.random() * 100;
         try {
-//            random((int)r);
-            random(1);
+            random((int)r);
+//            random(1);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ButterKnife.bind(this, view);
+//        ButterKnife.bind(this, view);
         return view;
     }
 
@@ -70,11 +70,11 @@ public class FragmentNotification extends Fragment {
         OkHttpClient okHttpClient = new OkHttpClient();
         //2.构造Request
         Request.Builder builder = new Request.Builder();
-//        Request request = builder.get().url(Constant.URLNOTIFICATION + "?nid=" + random + "&operation=randomQuery").build();
+//        Request request = builder.get().url(Constant.URLNOTIFICATION + "?nid=" + random + "&Operation=randomQuery").build();
         Request request = builder.get().url(Constant.URL + "randomQuery&nid=" + random).build();
         //3.将Request封装为Call
         Call call = okHttpClient.newCall(request);
-        L.e(Constant.URLNOTIFICATION + "?nid=" + random + "&operation=randomQuery");
+        L.e(Constant.URLNOTIFICATION + "?nid=" + random + "&Operation=randomQuery");
         //4.执行call
 //        Response response = call.execute();
         call.enqueue(new Callback() {
@@ -147,7 +147,7 @@ public class FragmentNotification extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
+//        ButterKnife.unbind(this);
     }
 
     @Override

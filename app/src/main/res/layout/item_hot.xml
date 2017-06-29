@@ -8,5 +8,7 @@
         android:id="@+id/search_item_hot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:background="#F0F0FF"
         android:text="Button"/>
 </LinearLayout>

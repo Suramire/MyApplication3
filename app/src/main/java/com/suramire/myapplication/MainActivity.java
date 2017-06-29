@@ -32,6 +32,7 @@ import com.suramire.myapplication.activity.HistoryActivity;
 import com.suramire.myapplication.activity.PhotoSelectActicity;
 import com.suramire.myapplication.activity.SearchActivity;
 import com.suramire.myapplication.activity.SystemSettingsActivity;
+import com.suramire.myapplication.activity.UserReceive;
 import com.suramire.myapplication.fragment.FragmentIndex;
 import com.suramire.myapplication.fragment.FragmentNotification;
 import com.suramire.myapplication.fragment.FragmentRecommend;
@@ -43,6 +44,8 @@ import com.suramire.myapplication.util.SPUtils;
 import com.suramire.myapplication.view.MyViewPager;
 import com.xmut.sc.entity.User;
 import com.zjw.user.LoginActivity;
+import com.zlw.PostedActivity;
+import com.zlw.Operation;
 import com.zxf.scode.Information;
 
 import java.io.IOException;
@@ -96,6 +99,10 @@ public class MainActivity extends AppCompatActivity
 
         }else if(requestCode ==REQUESTCODE && resultCode == Constant.LOGINSUCCESS){
             //登录成功 重启activity
+            Constant.isDestory = true;
+            finish();
+            startActivity(getIntent());
+        }else if(requestCode ==REQUESTCODE && resultCode == Constant.CHANGEUCCESS){
             Constant.isDestory = true;
             finish();
             startActivity(getIntent());
@@ -284,7 +291,12 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "这里响应发帖操作", Toast.LENGTH_SHORT).show();
+                if(uid>0){
+                    startActivity(new Intent(MainActivity.this, Operation.class));
+                }else{
+                    Toast.makeText(MainActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -394,9 +406,21 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation MyViewPager item clicks here.
         int id = item.getItemId();
         if (id == R.id.nav_sentcount) {
-            Toast.makeText(this, "跳转到个人发表的帖子列表", Toast.LENGTH_SHORT).show();
+            if(uid>0){
+                startActivity(new Intent(MainActivity.this, PostedActivity.class));
+            }else{
+                Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
+            }
+//            Toast.makeText(this, "跳转到个人发表的帖子列表", Toast.LENGTH_SHORT).show();
+
+
         } else if (id == R.id.nav_replycount) {
-            Toast.makeText(this, "跳转到个人回复帖子列表", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "跳转到个人回复帖子列表", Toast.LENGTH_SHORT).show();
+            if(uid>0){
+                startActivity(new Intent(MainActivity.this, UserReceive.class));
+            }else{
+                Toast.makeText(MainActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+            }
         } else if (id == R.id.nav_history) {
 //            Toast.makeText(this, "这里跳转到历史记录", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(MainActivity.this, HistoryActivity.class));

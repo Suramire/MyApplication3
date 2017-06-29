@@ -23,13 +23,19 @@ import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCal
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.nineoldandroids.animation.ValueAnimator;
 import com.nineoldandroids.view.ViewHelper;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.squareup.picasso.Picasso;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
 import com.suramire.myapplication.util.Constant;
+import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.L;
+import com.suramire.myapplication.util.SPUtils;
 import com.xmut.sc.entity.Note;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +73,30 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
         final View picture = View.inflate(this, R.layout.header_notedetail, null);
         imageView = picture.findViewById(R.id.imageView4);
         final Note note = (Note) getIntent().getSerializableExtra("note");
+        HTTPUtil.getCall(Constant.URL + "xijiayi&nid=" + note.getNid(), new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+
+            }
+        });
+        int uid = (int)SPUtils.get(this,"uid",0);
+        if(uid>0)
+        HTTPUtil.getCall(Constant.URL + "setHistory&nid=" + note.getNid()+"&uid="+uid, new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+
+            }
+        });
         List<Note> notes = new ArrayList<>();
         notes.add(note);
         // TODO: 2017/6/26 判断该帖子是否有图片,有则显示图片
@@ -76,7 +106,7 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
             public void onUpdate(BaseAdapterHelper helper, Note item, int position) {
                 helper.setText(R.id.detail_title, item.getTitle())
                         .setText(R.id.detail_content, item.getContent())
-                        .setText(R.id.detail_tag, item.getTag());
+                        .setText(R.id.detail_tag, "标签:"+item.getTag());
                 toolbar2.setTitle(item.getTitle());
                 String img = item.getImg();
                 if(!TextUtils.isEmpty(img)){

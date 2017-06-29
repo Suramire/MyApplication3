@@ -112,6 +112,7 @@ public class SystemSettingsActivity extends BaseActivity {
                 SPUtils.put(this, "banner", sysBanner.isChecked());
                 SPUtils.put(this,"space",trim1);
                 Toast.makeText(this, "修改成功", Toast.LENGTH_SHORT).show();
+                setResult(Constant.CHANGEUCCESS);
                 finish();
             } catch (Exception e) {
                 Log.e("SystemSettingsActivity", "Exception:" + e);

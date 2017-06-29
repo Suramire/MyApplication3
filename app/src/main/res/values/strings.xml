@@ -7,9 +7,13 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="action_settings">Settings</string>
-    <string-array name="names">
-        <item>你的名字</item>
-        <item>匿名用户</item>
+    <string-array name="types">
+        <item>生活</item>
+        <item>健康</item>
+        <item>历史</item>
+        <item>物理学</item>
+        <item>音乐</item>
+        <item>自然科学</item>
     </string-array>
     <!--zjw-->
     <string name="register">注册</string>
