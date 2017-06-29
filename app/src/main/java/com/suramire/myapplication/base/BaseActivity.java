@@ -16,7 +16,10 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

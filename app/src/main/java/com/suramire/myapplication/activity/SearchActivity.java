@@ -99,7 +99,7 @@ public class SearchActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.search, menu);
-        searchView = (SearchView) menu.findItem(R.id.action_settings).getActionView();
+        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setIconifiedByDefault(false);//默认展开
         searchView.setIconified(false);//默认焦点在搜索框上
         searchView.setQueryHint("搜索标题,内容,标签...");

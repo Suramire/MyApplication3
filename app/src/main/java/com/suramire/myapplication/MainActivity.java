@@ -13,6 +13,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity
     private int uid;
     private int index;
     private int[] ids;
+    private SearchView searchView;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -338,6 +340,14 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+//        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+//        searchView.setSelected(false);
+//        searchView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                startActivity(new Intent(MainActivity.this, SearchActivity.class));
+//            }
+//        });
         return true;
     }
 
@@ -349,7 +359,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_search) {
             //跳转到搜索页
             startActivity(new Intent(MainActivity.this, SearchActivity.class));
             return true;

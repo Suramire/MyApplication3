@@ -31,7 +31,8 @@
         </activity>
         <activity android:name=".test.TestRecyclerView"/>
 
-        <activity android:name=".activity.NoteDetailActivity"/>
+        <activity android:name=".activity.NoteDetailActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".activity.SearchActivity"/>
         <activity android:name=".activity.SettingsActivity"/>
         <activity android:name=".activity.TestActivity"/>
