@@ -28,9 +28,9 @@ import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.picasso.Picasso;
+import com.suramire.myapplication.activity.HistoryActivity;
 import com.suramire.myapplication.activity.PhotoSelectActicity;
 import com.suramire.myapplication.activity.SearchActivity;
-import com.suramire.myapplication.activity.SettingsActivity;
 import com.suramire.myapplication.activity.SystemSettingsActivity;
 import com.suramire.myapplication.fragment.FragmentIndex;
 import com.suramire.myapplication.fragment.FragmentNotification;
@@ -167,9 +167,9 @@ public class MainActivity extends AppCompatActivity
                                     }
                                 });
                                 // TODO: 2017/6/27 若用户有头像则显示用户头像
-                                if(!"".equals(user.getImg())){
+                                if(user.getImg()!=null && !"".equals(user.getImg())){
                                     //有头像,连接服务器获取
-                                    e("该用户有头像");
+                                    e("该用户有头像"+user.getImg());
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -222,6 +222,11 @@ public class MainActivity extends AppCompatActivity
 //                            });
                                 }else{
                                     e("该用户没有头像");
+                                    Picasso.with(MainActivity.this)
+                                            .load(R.drawable.def)
+                                            .resize(90,90)
+                                            .centerCrop()
+                                            .into(user_img);
 //                            Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH + "default.png);" +
 //                                            "//todo 默认头像
 //                            user_img.setImageBitmap(bitmap);
@@ -376,7 +381,7 @@ public class MainActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
-
+// TODO: 2017/6/29 用户点击帖子时应生成历史记录
     /**
      * 抽屉菜单的item点击事件
      *
@@ -393,10 +398,16 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_replycount) {
             Toast.makeText(this, "跳转到个人回复帖子列表", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_history) {
-            Toast.makeText(this, "这里跳转到历史记录", Toast.LENGTH_SHORT).show();
-//            startActivity(new Intent(MainActivity.this, TestActivity.class));
+//            Toast.makeText(this, "这里跳转到历史记录", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(MainActivity.this, HistoryActivity.class));
+
         } else if (id == R.id.nav_share) {
-            startActivityForResult(new Intent(MainActivity.this, Information.class),MainActivity.REQUESTCODE);
+            if(uid>0){
+                startActivityForResult(new Intent(MainActivity.this, Information.class),MainActivity.REQUESTCODE);
+            }else{
+                Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
+            }
+
         } else if (id == R.id.nav_systemsetting) {
             startActivityForResult(new Intent(MainActivity.this, SystemSettingsActivity.class),REQUESTCODE);
         } else if (id == R.id.nav_signout) {

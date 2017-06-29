@@ -47,6 +47,7 @@
         <service android:name=".service.PostService"/>
         <activity android:name=".activity.ReceiveActivity"/>
         <activity android:name=".activity.NoteByTypeActivity"/>
+        <activity android:name=".activity.HistoryActivity"/>
 
         <!--zjw-->
         <activity android:name="com.zjw.user.LoginActivity"/>

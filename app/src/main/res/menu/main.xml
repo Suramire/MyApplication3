@@ -5,7 +5,6 @@
         android:id="@+id/action_search"
         android:orderInCategory="100"
         android:title="搜索"
-
         app:showAsAction="always"
         />
 

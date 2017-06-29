@@ -20,9 +20,10 @@
             android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/infor_username"
             android:layout_marginTop="20dp"
-            android:textSize="30sp" />
+            android:focusable="false"
+            android:text="@string/infor_username"
+            android:textSize="30sp"/>
     </LinearLayout>
 
     <LinearLayout
