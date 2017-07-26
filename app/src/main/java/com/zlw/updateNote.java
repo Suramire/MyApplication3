@@ -17,10 +17,8 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
@@ -49,9 +47,13 @@ public class updateNote extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.update_layout);
         initView();
         initdata();
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.update_layout;
     }
 
     private void initdata() {
@@ -66,14 +68,14 @@ public class updateNote extends BaseActivity {
 //        Toast.makeText(this,"id="+note.getNid()+"=="+note.getTitle()+"===="+note.getContent(),Toast.LENGTH_SHORT).show();
 
         ed_content.setText(note.getContent());
-        ed_type.setText(note.getType());
+        ed_type.setText(note.getTag());
         //从数据库中取得isshare
         if(note.getIsshare()){
             cb.setChecked(true);
         }else{
             cb.setChecked(false);
         }
-        spinner.setSelection(Integer.parseInt(note.getType()));
+        spinner.setSelection(Integer.parseInt(note.getType())-1);
 
         //判断共享是否被选中
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -159,12 +161,12 @@ public class updateNote extends BaseActivity {
 
 
     private void init(Note note) {
-        String current = Operation.formatDate();
+        String current = NewNote.formatDate();
         note.setTitle(ed_title.getText().toString());
         note.setContent(ed_content.getText().toString());
 //        note.setEditTime(current);
         note.setEdittime(new Date());
-        note.setUid((int)SPUtils.get(this,"uid",0));
+        note.setUid((int)SPUtils.get("uid",0));
         note.setTag(ed_type.getText().toString());
 
     }

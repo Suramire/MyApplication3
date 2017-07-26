@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,8 +20,6 @@ import com.classic.adapter.CommonAdapter;
 import com.github.ksoichiro.android.observablescrollview.ObservableListView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
-import com.nineoldandroids.animation.ValueAnimator;
-import com.nineoldandroids.view.ViewHelper;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -40,15 +37,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 
-import static com.suramire.myapplication.util.Constant.DELAY;
+import static com.suramire.myapplication.util.AnimationUtil.hide;
+import static com.suramire.myapplication.util.AnimationUtil.show;
 
 /**
  * Created by Suramire on 2017/6/20.
  */
 
-public class NoteDetailActivity extends AppCompatActivity implements ObservableScrollViewCallbacks {
+public class NoteDetailActivity extends BaseActivity implements ObservableScrollViewCallbacks {
 
     @Bind(R.id.detail_listview)
     ObservableListView detailListview;
@@ -56,8 +53,8 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
     TextView detailEmpty;
     @Bind(R.id.detail_botton)
     BottomNavigationView detailBotton;
-    @Bind(R.id.toolbar2)
-    Toolbar toolbar2;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
     private ActionBar actionBar;
     private boolean isHide;
     private ImageView imageView;
@@ -66,10 +63,17 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notedetail);
-        ButterKnife.bind(this);
-        setSupportActionBar(toolbar2);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.activity_notedetail;
+    }
+
+    @Override
+    protected void initView() {
+        setSupportActionBar(toolbar);
+
         final View picture = View.inflate(this, R.layout.header_notedetail, null);
         imageView = picture.findViewById(R.id.imageView4);
         final Note note = (Note) getIntent().getSerializableExtra("note");
@@ -84,19 +88,19 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
 
             }
         });
-        int uid = (int)SPUtils.get(this,"uid",0);
+        int uid = (int) SPUtils.get("uid",0);
         if(uid>0)
-        HTTPUtil.getCall(Constant.URL + "setHistory&nid=" + note.getNid()+"&uid="+uid, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
+            HTTPUtil.getCall(Constant.URL + "setHistory&nid=" + note.getNid()+"&uid="+uid, new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
 
-            }
+                }
 
-            @Override
-            public void onResponse(Response response) throws IOException {
+                @Override
+                public void onResponse(Response response) throws IOException {
 
-            }
-        });
+                }
+            });
         List<Note> notes = new ArrayList<>();
         notes.add(note);
         // TODO: 2017/6/26 判断该帖子是否有图片,有则显示图片
@@ -107,7 +111,7 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
                 helper.setText(R.id.detail_title, item.getTitle())
                         .setText(R.id.detail_content, item.getContent())
                         .setText(R.id.detail_tag, "标签:"+item.getTag());
-                toolbar2.setTitle(item.getTitle());
+                toolbar.setTitle(item.getTitle());
                 String img = item.getImg();
                 if(!TextUtils.isEmpty(img)){
                     Picasso.with(NoteDetailActivity.this).load(Constant.BASEURL + "bbs/upload/" + img).into(imageView);
@@ -170,15 +174,14 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
 
     @Override
     public void onUpOrCancelMotionEvent(ScrollState scrollState) {
-        L.e("详情页 滚动");
         if (scrollState == ScrollState.UP) {
             if (!isHide) {
-                hide(toolbar2,detailBotton);
+                hide(toolbar,detailBotton);
                 isHide = true;
             }
         } else if (scrollState == ScrollState.DOWN) {
             if (isHide) {
-                show(toolbar2,detailBotton);
+                show(toolbar,detailBotton);
                 isHide = false;
             }
         }
@@ -186,48 +189,7 @@ public class NoteDetailActivity extends AppCompatActivity implements ObservableS
 
     }
 
-    private void show(final View top, final View bottom) {
-//        fab.show();
-        ValueAnimator animator = ValueAnimator.ofFloat(top.getHeight(), 0).setDuration(DELAY);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                ViewHelper.setTranslationY(top, -value);
-            }
-        });
-        animator.start();
-        ValueAnimator animator2 = ValueAnimator.ofFloat(bottom.getHeight(), 0).setDuration(DELAY);
-        animator2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                ViewHelper.setTranslationY(bottom, value);
-            }
-        });
-        animator2.start();
-    }
 
-    private void hide(final View top, final View bottom) {
-        ValueAnimator animator = ValueAnimator.ofFloat(0, top.getHeight()).setDuration(DELAY);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                ViewHelper.setTranslationY(top, -value);
-            }
-        });
-        animator.start();
-        ValueAnimator animator2 = ValueAnimator.ofFloat(0, bottom.getHeight()).setDuration(DELAY);
-        animator2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                ViewHelper.setTranslationY(bottom, value);
-            }
-        });
-        animator2.start();
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

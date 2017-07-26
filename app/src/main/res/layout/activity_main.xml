@@ -16,11 +16,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#FFFFFF"
+        <!--<android.support.v7.widget.Toolbar-->
+            <!--android:id="@+id/toolbar"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="#FFFFFF"-->
+            <!--/>-->
+        <include
+            layout="@layout/toolbar"
             />
 
         <android.support.design.widget.FloatingActionButton
@@ -34,7 +37,7 @@
             android:layout_marginRight="10dp"
             android:clickable="true"
             app:backgroundTint="#FFFFFF"
-            app:srcCompat="@android:drawable/ic_menu_edit"/>
+            app:srcCompat="@drawable/ic_border_color_black_24dp"/>
 
         <RelativeLayout
             android:id="@+id/bottomlayout"

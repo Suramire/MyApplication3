@@ -1,8 +1,9 @@
 package com.zlw;
 
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,10 +19,8 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
@@ -39,7 +38,7 @@ import java.util.List;
  * Created by zlw on 2017/6/25.
  */
 
-public class Operation extends BaseActivity {
+public class NewNote extends BaseActivity {
 //    private String path= Constant.BASEURL+"android_service/GetData";
     private EditText ed_title,ed_content,ed_type;
     private CheckBox cb;
@@ -48,10 +47,28 @@ public class Operation extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.release_layout);
 
-        initView();
 
+
+
+
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.layout_newnote;
+    }
+
+    @Override
+    protected  void initView() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        note=new Note();
+        ed_content = (EditText) findViewById(R.id.id_content);
+        ed_title = (EditText) findViewById(R.id.id_title);
+        ed_type = (EditText) findViewById(R.id.ed_type);
+        cb= (CheckBox) findViewById(R.id.checkBox);
+        spinner= (Spinner) findViewById(R.id.id_spinner);
         //判断共享是否被选中
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -77,8 +94,9 @@ public class Operation extends BaseActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String data = list.get(i);
-                note.setType(data);
+//                String data = list.get(i);
+
+                note.setType((i+1)+"");
             }
 
             @Override
@@ -88,17 +106,6 @@ public class Operation extends BaseActivity {
         });
 
         spinner.setAdapter(adapter);
-
-
-    }
-
-    public  void initView() {
-        note=new Note();
-        ed_content = (EditText) findViewById(R.id.id_content);
-        ed_title = (EditText) findViewById(R.id.id_title);
-        ed_type = (EditText) findViewById(R.id.ed_type);
-        cb= (CheckBox) findViewById(R.id.checkBox);
-        spinner= (Spinner) findViewById(R.id.id_spinner);
 
     }
 
@@ -110,63 +117,74 @@ public class Operation extends BaseActivity {
      */
     public void release(){
 
+        if (init(note)) {
+            Gson gson=new Gson();
+            String toJson = gson.toJson(note);
+            Log.i("flag",toJson);
+            OkHttpClient okHttpClient=new OkHttpClient();
+            Request.Builder builder = new Request.Builder();
+            final Request request = builder.get().url(Constant.URL+"add&note="+toJson).addHeader("content-type","application/json:charset:utf-8").build();
+
+            Call call = okHttpClient.newCall(request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Response response) throws IOException {
 
 
-        init(note);
+                    final String result = response.body().string();
+                    if(!TextUtils.isEmpty(result)){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(result.equals("true")){
+                                    Toast.makeText(NewNote.this, "发布成功", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                }else{
+                                    Toast.makeText(NewNote.this, "发布失败", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
 
+                    }
 
-        Gson gson=new Gson();
-        String toJson = gson.toJson(note);
-        Log.i("flag",toJson);
-//        Toast.makeText(this,toJson, Toast.LENGTH_SHORT).show();
-        OkHttpClient okHttpClient=new OkHttpClient();
-
-
-        Request.Builder builder = new Request.Builder();
-//        RequestBody requestBody = new FormEncodingBuilder().add("note",toJson).add("flag","add").build();
-//
-//        Request request = builder.post(requestBody).url(path).addHeader("content-type","application/json:charset:utf-8").build();
-        Request request = builder.get().url(Constant.URL+"add&note="+toJson).addHeader("content-type","application/json:charset:utf-8").build();
-
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
+                }
+            });
+        }else{
 
         }
 
-            @Override
-            public void onResponse(Response response) throws IOException {
-
-
-                String result = response.body().string();
-                Log.i("flag",result);
-
-            }
-        });
     }
 
     /**
      * 初始化Note
      * @param note
+     * 添加帖子完整性判断 2017年7月4日 20:24:25
      */
-    private void init(Note note) {
-        String current = formatDate();
-        note.setTitle(ed_title.getText().toString());
-        note.setContent(ed_content.getText().toString());
-//        note.setPublishTime(current);
-        note.setPublishtime(new Date());
-        note.setEdittime(new Date());
-        note.setViewtime(new Date());
-        note.setCount(0);
-        note.setUid((int)SPUtils.get(Operation.this,"uid",0));
-        note.setTag(ed_type.getText().toString().trim());
-        note.setIsshare(cb.isChecked());
-//        note.setEditTime(current);
-//        note.setViewTime(current);
+    private boolean init(Note note) {
+        String title = ed_title.getText().toString().trim();
+        String content = ed_content.getText().toString().trim();
+        if(TextUtils.isEmpty(title) || TextUtils.isEmpty(content)){
+            Toast.makeText(this, "标题和内容都不能为空", Toast.LENGTH_SHORT).show();
+            return false;
+        }else{
+            note.setTitle(title);
+            note.setContent(content);
+            Date date = new Date();
+            note.setPublishtime(date);
+            note.setEdittime(date);
+            note.setViewtime(date);
+            note.setCount(0);
+            note.setUid((int)SPUtils.get("uid",0));
+            note.setTag(ed_type.getText().toString().trim());
+            note.setIsshare(cb.isChecked());
+            return true;
+        }
 
-
-//        Toast.makeText(this,current, Toast.LENGTH_SHORT).show();
     }
 
     /**

@@ -7,7 +7,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -21,10 +20,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
@@ -46,7 +43,15 @@ public class PostedActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_poated);
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.activity_poated;
+    }
+
+    @Override
+    protected void initView() {
         requstNet();
         listView= (SwipeMenuListView) findViewById(R.id.listView);
         SwipeMenuCreator creator = new SwipeMenuCreator() {
@@ -92,7 +97,6 @@ public class PostedActivity extends BaseActivity {
 // set creator
 
         listView.setMenuCreator(creator);
-
     }
 
     private void setMenuItemClick(final MyBaseAdapter adapter) {
@@ -145,7 +149,7 @@ public class PostedActivity extends BaseActivity {
 
                         break;
                 }
-                Toast.makeText(PostedActivity.this,position+"项'", Toast.LENGTH_SHORT).show();;
+//                Toast.makeText(PostedActivity.this,position+"项'", Toast.LENGTH_SHORT).show();;
                 // false : close the menu; true : not close the menu
                 return false;
             }
@@ -265,7 +269,7 @@ public class PostedActivity extends BaseActivity {
 //            }
 //        });
 
-        HTTPUtil.getCall(Constant.URL + "queryall&uid=" + (int) SPUtils.get(PostedActivity.this, "uid", 0), new Callback() {
+        HTTPUtil.getCall(Constant.URL + "queryall&uid=" + (int) SPUtils.get("uid", 0), new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
 

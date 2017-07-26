@@ -97,11 +97,11 @@ public class PostService extends Service {
         final OkHttpClient okHttpClient = new OkHttpClient();
         //2.构造Request
         Request.Builder builder = new Request.Builder();
-//        Request request = builder.get().url(Constant.URLNOTIFICATION + "?nid=" + random + "&Operation=randomQuery").build();
+//        Request request = builder.get().url(Constant.URLNOTIFICATION + "?nid=" + random + "&NewNote=randomQuery").build();
         Request request = builder.get().url(Constant.URL + "randomQuery&nid=" + random).build();
         //3.将Request封装为Call
         Call call = okHttpClient.newCall(request);
-        L.e(Constant.URLNOTIFICATION + "?nid=" + random + "&Operation=randomQuery");
+        L.e(Constant.URLNOTIFICATION + "?nid=" + random + "&NewNote=randomQuery");
         //4.执行call
 //        Response response = call.execute();
         call.enqueue(new Callback() {

@@ -1,5 +1,6 @@
 package com.suramire.myapplication.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,10 +22,11 @@ import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
+import com.suramire.myapplication.base.App;
 import com.suramire.myapplication.base.BaseActivity;
 import com.suramire.myapplication.util.Constant;
-import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.GsonUtil;
+import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.L;
 import com.xmut.sc.entity.Note;
 
@@ -36,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 
 import static com.suramire.myapplication.util.Constant.URL;
 
@@ -56,13 +57,27 @@ public class SearchActivity extends BaseActivity {
 
     private SearchView searchView;
     CommonAdapter<Note> adapter;
+    private App mContext;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search);
-        ButterKnife.bind(this);
 
+
+
+//        ImageView imageView = new ImageView(SearchActivity.this);
+//        imageView.setImageResource(R.drawable.ic_menu_manage);
+//        searchListview.setEmptyView(imageView);
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.activity_search;
+    }
+
+    @Override
+    protected void initView() {
+        mContext = App.getContext();
         // TODO: 2017/6/26 这里读取服务类的热门分类或关键字
         ArrayList<String> strings = new ArrayList<>();
         strings.add("为什么");
@@ -90,10 +105,6 @@ public class SearchActivity extends BaseActivity {
                 });
             }
         });
-
-//        ImageView imageView = new ImageView(SearchActivity.this);
-//        imageView.setImageResource(R.drawable.ic_menu_manage);
-//        searchListview.setEmptyView(imageView);
     }
 
     @Override
@@ -128,14 +139,28 @@ public class SearchActivity extends BaseActivity {
      * 初始化listview 清空之前存在的数据
      */
     private void initListView(){
-        ArrayList<Note> notes = new ArrayList<>();
+        final ArrayList<Note> notes = new ArrayList<>();
         adapter = new CommonAdapter<Note>(SearchActivity.this, R.layout.item_search, notes) {
             @Override
-            public void onUpdate(BaseAdapterHelper helper, Note item, int position) {
+            public void onUpdate(BaseAdapterHelper helper, Note item, final int position) {
                 helper.setText(R.id.search_tag, item.getTag())
                         .setText(R.id.search_title, item.getTitle())
                         .setText(R.id.search_content, item.getContent())
                         .setText(R.id.search_count, item.getCount() + "");
+                helper.setOnClickListener(R.id.search_content, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(new Intent(SearchActivity.this, NoteDetailActivity.class).putExtra("note",notes.get(position)));
+                    }
+                })
+                .setOnClickListener(R.id.search_title, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(new Intent(SearchActivity.this, NoteDetailActivity.class).putExtra("note",notes.get(position)));
+
+                    }
+                })
+                ;
             }
         };
         searchListview.setAdapter(adapter);
@@ -172,11 +197,25 @@ public class SearchActivity extends BaseActivity {
                                 public void run() {
                                     adapter = new CommonAdapter<Note>(SearchActivity.this, R.layout.item_search, mnotes) {
                                         @Override
-                                        public void onUpdate(BaseAdapterHelper helper, Note item, int position) {
+                                        public void onUpdate(BaseAdapterHelper helper, Note item, final int position) {
                                             helper.setText(R.id.search_tag, item.getTag())
                                                     .setText(R.id.search_title, item.getTitle())
                                                     .setText(R.id.search_content, item.getContent())
                                                     .setText(R.id.search_count, item.getCount() + "");
+                                            helper.setOnClickListener(R.id.search_content, new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    startActivity(new Intent(SearchActivity.this, NoteDetailActivity.class).putExtra("note",mnotes.get(position)));
+                                                }
+                                            })
+                                                    .setOnClickListener(R.id.search_title, new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View view) {
+                                                            startActivity(new Intent(SearchActivity.this, NoteDetailActivity.class).putExtra("note",mnotes.get(position)));
+
+                                                        }
+                                                    })
+                                            ;
                                         }
                                     };
                                     searchListview.setAdapter(adapter);
@@ -192,7 +231,7 @@ public class SearchActivity extends BaseActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(SearchActivity.this, "未找到符合条件的结果", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mContext, "未找到符合条件的结果", Toast.LENGTH_SHORT).show();
                             }
                         });
 

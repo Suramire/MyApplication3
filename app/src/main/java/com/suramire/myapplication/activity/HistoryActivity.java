@@ -43,11 +43,20 @@ public class HistoryActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_history);
-        ButterKnife.bind(this);
+
+
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.activity_history;
+    }
+
+    @Override
+    protected void initView() {
         histotyListview.setEmptyView(recommendEmpty);
         //进入查询已登录用户的历史记录
-        int uid = (int)SPUtils.get(this, "uid", 0);
+        int uid = (int)SPUtils.get( "uid", 0);
         if(uid>0){
             L.e("浏览历史记录:" + URL + "getHistory&uid=" + uid);
             HTTPUtil.getCall(URL + "getHistory&uid=" + uid, new Callback() {

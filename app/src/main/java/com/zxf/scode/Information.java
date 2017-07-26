@@ -3,16 +3,13 @@ package com.zxf.scode;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.IdRes;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -28,14 +25,7 @@ import com.suramire.myapplication.util.L;
 import com.suramire.myapplication.util.SPUtils;
 import com.xmut.sc.entity.User;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
 
 
 public class Information extends BaseActivity{
@@ -64,28 +54,46 @@ public class Information extends BaseActivity{
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
+
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.information);
 //		int uid =getIntent().getIntExtra("uid", 0);
 
 
-		ausername=(EditText) findViewById(R.id.username);
-		asex=(RadioGroup) findViewById(R.id.sex);
+
+//		save.setOnClickListener(onClickListener);
+		//mSureButton.setOnClickListener(mListener);
+	}
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.layout_information;
+    }
+
+    @Override
+    protected void initView() {
+        ausername=(EditText) findViewById(R.id.username);
+        asex=(RadioGroup) findViewById(R.id.sex);
         // TODO: 2017/6/29  日期格式转换
         abirth=(EditText) findViewById(R.id.birth);
-		aemail=(EditText)findViewById(R.id.email);
-		aphone=(EditText)findViewById(R.id.phone);
-		ahobbyone=(EditText)findViewById(R.id.hobbyone);
-		ahobbytwo=(EditText)findViewById(R.id.hobbytwo);
-		ahobbythree=(EditText)findViewById(R.id.hobbythree);
-		apersonality=(EditText)findViewById(R.id.personality);
+        aemail=(EditText)findViewById(R.id.email);
+        aphone=(EditText)findViewById(R.id.phone);
+        ahobbyone=(EditText)findViewById(R.id.hobbyone);
+        ahobbytwo=(EditText)findViewById(R.id.hobbytwo);
+        ahobbythree=(EditText)findViewById(R.id.hobbythree);
+        apersonality=(EditText)findViewById(R.id.personality);
 //		back=(Button)findViewById(R.id.back);
 //		save=(Button)findViewById(R.id.save);
         User mUser = Constant.user;
         ausername.setText(mUser.getUsername());
+        L.e("个人信息性别:" + mUser.getSex());
         if(mUser.getSex().equals("男")){
-            findViewById(R.id.radio0).setSelected(true);
+            ((RadioButton)asex.getChildAt(0)).setSelected(true);
+//            findViewById(R.id.radio0).setSelected(true);
+
+        }else{
+            View childAt = asex.getChildAt(1);
+
+//            ((RadioButton)).setSelected(true);
         }
         abirth.setText(DateUtil.dateToString(mUser.getBirth()));
         aemail.setText(mUser.getEmail());
@@ -96,24 +104,22 @@ public class Information extends BaseActivity{
         asex.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
-               if(i==R.id.radio0){
-                   sex = "男";
-               }else{
-                   sex = "女";
-               }
+                if(i==R.id.radio0){
+                    sex = "男";
+                }else{
+                    sex = "女";
+                }
                 L.e("性别:" + sex);
             }
         });
-		
-		dialog = new ProgressDialog(Information.this);
-		dialog.setTitle("正在保存中");
-		dialog.setMessage("请稍等...");
-//		save.setOnClickListener(onClickListener);
-		//mSureButton.setOnClickListener(mListener);
-	}
+
+        dialog = new ProgressDialog(Information.this);
+        dialog.setTitle("正在保存中");
+        dialog.setMessage("请稍等...");
+    }
 //		    View.OnClickListener onClickListener=new View.OnClickListener(){
 //			public void onClick(View v) {
-//				// TODO Auto-generated method stub
+
 //				switch (v.getId()) {
 //				case R.id.back:
 ////					Intent backintent=new Intent(Information.this,MyInformation.class);
@@ -130,7 +136,7 @@ public class Information extends BaseActivity{
 //		};
 //实现保存             
 private void save_check() {
-    int uid = (int) SPUtils.get(Information.this,"uid",0);
+    int uid = (int) SPUtils.get("uid",0);
                             String urlString =Constant.BASEURL+ "bbs/Update?do=update&username="+username
             +"&sex="+sex+"&birth="+birth+"&email="+email+"&phone="+phone
             +"&hobbyone="+hobbyone+"&personality="+personality+"&uid="+uid;
@@ -153,7 +159,7 @@ private void save_check() {
                         if(string.equals("1")){
                             Toast.makeText(Information.this, "修改成功,请重新登录", Toast.LENGTH_SHORT).show();
                             setResult(Constant.UPDATESUCCESS);
-                            SPUtils.put(Information.this,"uid",0);
+                            SPUtils.put("uid",0);
                             finish();
                         }else{
                             Toast.makeText(Information.this, "修改失败", Toast.LENGTH_SHORT).show();
@@ -168,7 +174,7 @@ private void save_check() {
 //
 //					@Override
 //					public void run() {
-//						// TODO Auto-generated method stub
+
 //						if(ishaveneweinformation()){
 //                            try {
 //
@@ -231,14 +237,14 @@ private void save_check() {
 				
 				//實現查詢
 				
-				// TODO Auto-generated method stub
+
 //				if(ishaveneweinformation()){
 //					dialog.show();
 //					new Thread(new Runnable() {
 //						
 //						@Override
 //						public void run() {
-//							// TODO Auto-generated method stub
+
 //							ModifyOperaton modifyOperaton = new ModifyOperaton();
 //							User user=new User(username,sex,birth,email,phone,hobbyone,hobbytwo,hobbythree,personality);
 //							List<User> list=new ArrayList<User>();
@@ -290,7 +296,7 @@ private void save_check() {
 			
 
 		private boolean ishaveneweinformation()  {
-			// TODO Auto-generated method stub 
+
 			username=ausername.getText().toString().trim();
 
 			//birth

@@ -33,6 +33,7 @@ public class Constant {
     public static User user;//保存已登录的用户
     public static Note note;//当前查看的帖子
     public static int indexCount;//首页已加载帖子数量
+    public static int currentCount;//本次刷新加载的数量
     public static List<Note> notes;//已缓冲的List<Note>
     public static boolean isDestory;//首页是否被销毁过
     public static boolean isPostRunning;//推送服务是否在运行

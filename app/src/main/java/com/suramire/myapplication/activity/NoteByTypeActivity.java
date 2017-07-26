@@ -16,8 +16,8 @@ import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
 import com.suramire.myapplication.util.Constant;
-import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.GsonUtil;
+import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.L;
 import com.xmut.sc.entity.Note;
 
@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.List;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 
 /**
  * Created by Suramire on 2017/6/28.
@@ -40,8 +39,17 @@ public class NoteByTypeActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notebytype);
-        ButterKnife.bind(this);
+
+
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.activity_notebytype;
+    }
+
+    @Override
+    protected void initView() {
         int index = getIntent().getIntExtra("index", 0);
         String[] stringArray = getResources().getStringArray(R.array.types);
         getSupportActionBar().setTitle(stringArray[index]);

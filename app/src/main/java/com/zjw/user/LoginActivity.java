@@ -9,7 +9,6 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -52,7 +51,16 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.activity_login;
+
+    }
+
+    @Override
+    protected void initView() {
         // 获取控件
         mAccount = (EditText) findViewById(R.id.login_edit_account);
         mPwd = (EditText) findViewById(R.id.login_edit_pwd);
@@ -93,7 +101,7 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // TODO Auto-generated method stub
+
                 if (!choseAutologin) {
 
                     //修改 保存用户名之前要先获取用户名
@@ -112,7 +120,7 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // TODO Auto-generated method stub
+
                 if (!choseRemember) {
                     userName = mAccount.getText().toString().trim();
                     userPwd = mPwd.getText().toString().trim();
@@ -125,7 +133,6 @@ public class LoginActivity extends BaseActivity {
                 }
             }
         });
-
     }
 
 
@@ -198,7 +205,7 @@ public class LoginActivity extends BaseActivity {
                 }else{
                     Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
                     int uid = Integer.parseInt(string);
-                    SPUtils.put(LoginActivity.this,"uid",uid);
+                    SPUtils.put("uid",uid);
                     setResult(Constant.LOGINSUCCESS);
                     finish();
                 }

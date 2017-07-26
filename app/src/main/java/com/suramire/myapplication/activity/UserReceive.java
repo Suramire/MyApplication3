@@ -1,6 +1,5 @@
 package com.suramire.myapplication.activity;
 
-import android.net.wifi.hotspot2.pps.Credential;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -20,7 +19,6 @@ import com.suramire.myapplication.util.GsonUtil;
 import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.L;
 import com.suramire.myapplication.util.SPUtils;
-import com.xmut.sc.entity.Note;
 import com.xmut.sc.entity.Receive;
 
 import java.io.IOException;
@@ -42,11 +40,20 @@ public class UserReceive extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_userreceive);
-        ButterKnife.bind(this);
+
+
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.activity_userreceive;
+    }
+
+    @Override
+    protected void initView() {
         listviewUserreceive.setEmptyView(receiveEmpty);
-        L.e("查看回复记录 url"+Constant.URL + "getReceiveByUid&uid=" + SPUtils.get(this, "uid", 0));
-        HTTPUtil.getCall(Constant.URL + "getReceiveByUid&uid=" + SPUtils.get(this, "uid", 0), new Callback() {
+        L.e("查看回复记录 url"+Constant.URL + "getReceiveByUid&uid=" + SPUtils.get("uid", 0));
+        HTTPUtil.getCall(Constant.URL + "getReceiveByUid&uid=" + SPUtils.get("uid", 0), new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
 
@@ -56,16 +63,22 @@ public class UserReceive extends BaseActivity {
             public void onResponse(Response response) throws IOException {
                 String string = response.body().string();
                 if(!TextUtils.isEmpty(string)){
-                    List<Receive> receives = GsonUtil.jsonToList(string,Receive.class);
-                    if(receives.size()>0){
-                        listviewUserreceive.setAdapter(new CommonAdapter<Receive>(UserReceive.this,R.layout.item_receive,receives) {
-                            @Override
-                            public void onUpdate(BaseAdapterHelper helper, Receive item, int position) {
-                                helper.setText(R.id.receive_time, DateUtil.dateToString(item.getReceivetime()) + "")
-                                        .setText(R.id.receive_content, item.getContent());
+                    final List<Receive> receives = GsonUtil.jsonToList(string,Receive.class);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(receives.size()>0){
+                                listviewUserreceive.setAdapter(new CommonAdapter<Receive>(UserReceive.this,R.layout.item_receive,receives) {
+                                    @Override
+                                    public void onUpdate(BaseAdapterHelper helper, Receive item, int position) {
+                                        helper.setText(R.id.receive_time, DateUtil.dateToString(item.getReceivetime()) + "")
+                                                .setText(R.id.receive_content, item.getContent());
+                                    }
+                                });
                             }
-                        });
-                    }
+                        }
+                    });
+
                 }
             }
         });

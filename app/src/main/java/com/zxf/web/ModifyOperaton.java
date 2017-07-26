@@ -29,7 +29,6 @@ public class ModifyOperaton<ConnNet> {
 
 
     public String UpData(String uripath, String jsonString) {
-        // TODO Auto-generated method stub
         String result = null;
         List<NameValuePair> list=new ArrayList<NameValuePair>();
         NameValuePair nvp=new BasicNameValuePair("jsonstring", jsonString);

@@ -33,7 +33,7 @@ public class MyInformation extends Activity{
         login.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
+
                 Intent intent=new Intent();
                 intent.setClass(MyInformation.this,Login.class);
                 startActivity(intent);
@@ -44,7 +44,7 @@ public class MyInformation extends Activity{
         information.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
+
                 //todo 登录判断
 
                 //todo 實現查詢 未實現
@@ -56,7 +56,7 @@ public class MyInformation extends Activity{
 
                     @Override
                     public void run() {
-                        // TODO Auto-generated method stub
+
 
                         String usernameString="vxv";
 

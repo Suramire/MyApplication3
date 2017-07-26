@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_sentcount"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/ic_chat_bubble_black_24dp"
             android:title="发帖数："/>
         <item
             android:id="@+id/nav_replycount"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/ic_chat_black_24dp"
             android:title="回帖数："/>
         <item
             android:id="@+id/nav_history"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_query_builder_black_24dp"
             android:title="历史记录"/>
     </group>
 
@@ -20,22 +21,22 @@
         <menu>
             <item
                 android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_manage"
+                android:icon="@drawable/ic_perm_identity_black_24dp"
                 android:title="个人信息"/>
             <item
                 android:id="@+id/nav_systemsetting"
-                android:icon="@drawable/ic_menu_send"
+                android:icon="@drawable/ic_settings_black_24dp"
                 android:title="系统设置"/>
         </menu>
     </item>
 
     <item
         android:id="@+id/nav_signout"
-        android:icon="@drawable/ic_menu_gallery"
+        android:icon="@drawable/ic_touch_app_black_24dp"
         android:title="注销登录"/>
     <item
         android:id="@+id/nav_quit"
-        android:icon="@drawable/ic_menu_gallery"
+        android:icon="@drawable/ic_power_settings_new_black_24dp"
         android:title="退出系统"/>
 
 </menu>

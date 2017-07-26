@@ -23,6 +23,7 @@
         android:textSize="18sp"
         android:visibility="gone"/>
 
+
     <com.baoyz.swipemenulistview.SwipeMenuListView
         android:id="@+id/recommend_listview"
         android:layout_width="match_parent"

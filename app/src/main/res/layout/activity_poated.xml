@@ -4,8 +4,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
-    tools:context="com.qq33192677.zlw.scode.PostedActivity">
+>
 
     <com.baoyz.swipemenulistview.SwipeMenuListView
         android:id="@+id/listView"

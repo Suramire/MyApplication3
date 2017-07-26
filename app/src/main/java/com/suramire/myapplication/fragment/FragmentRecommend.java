@@ -1,6 +1,7 @@
 package com.suramire.myapplication.fragment;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -26,6 +27,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
 import com.suramire.myapplication.activity.NoteDetailActivity;
+import com.suramire.myapplication.base.App;
 import com.suramire.myapplication.test.Student;
 import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.GsonUtil;
@@ -39,6 +41,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+
 import static com.suramire.myapplication.util.Constant.URL;
 
 
@@ -57,50 +60,43 @@ public class FragmentRecommend extends Fragment {
     private Activity activity;
     private int uid;
     private List<Note> mnotes;//存放推荐帖子
+    private View view;
+    private ProgressDialog progressDialog;
+    private App mContext;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: ");
-        View view = inflater.inflate(R.layout.activity_recommned, container, false);
-        ButterKnife.bind(this, view);
-        activity = getActivity();
-        uid = (int) SPUtils.get(activity, "uid", 0);
+        if (view!=null) {
+            return view;
+        }else{
+            view = inflater.inflate(R.layout.activity_recommned, container, false);
+            ButterKnife.bind(this, view);
+            activity = getActivity();
+            mContext = App.getContext();
+            uid = (int) SPUtils.get("uid", 0);
+            setupListView();
+            return view;
+        }
+
+    }
+
+    private void setupListView() {
         recommendListview.setEmptyView(recommendEmpty);
         SwipeMenuCreator creator = new SwipeMenuCreator() {
 
             @Override
             public void create(SwipeMenu menu) {
-//                 create "open" item
                 SwipeMenuItem deleteItem = new SwipeMenuItem(
                         getActivity());
-                // set item background
                 deleteItem.setBackground(new ColorDrawable(Color.rgb(0xF9,
                         0x3F, 0x25)));
-                // set item width
                 deleteItem.setWidth(270);
-                // set item title
                 deleteItem.setTitle("不喜欢");
-                // set item title fontsize
                 deleteItem.setTitleSize(18);
-                // set item title font color
                 deleteItem.setTitleColor(Color.WHITE);
-                // add to menu
                 menu.addMenuItem(deleteItem);
 
-                // create "delete" item
-//                SwipeMenuItem deleteItem = new SwipeMenuItem(
-//                        getActivity());
-//                // set item background
-//                deleteItem.setBackground(new ColorDrawable(Color.rgb(0xF9,
-//                        0x3F, 0x25)));
-//                // set item width
-//
-//                deleteItem.setWidth(270);
-//                // set a icon
-//                deleteItem.setIcon(R.mipmap.ic_launcher);
-//                // add to menu
-//                menu.addMenuItem(deleteItem);
             }
         };
         recommendListview.setMenuCreator(creator);
@@ -123,7 +119,7 @@ public class FragmentRecommend extends Fragment {
                                 L.e("不喜欢帖子结果:" + response.body().string());
                             }
                         });
-                        Toast.makeText(activity, "已为您减少该类型内容", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "已为您减少该类型内容", Toast.LENGTH_SHORT).show();
                         mnotes.remove(position);
                         updateListview();
                         break;
@@ -133,14 +129,14 @@ public class FragmentRecommend extends Fragment {
                 return false;
             }
         });
+    }
 
+    private void getData() {
         if (uid >0) {
             //滑动菜单操作
             recommendEmpty.setText("暂时没有推荐内容,多看帖已便我们推荐");
             // FIXME: 2017/6/24 对获取的帖子数量进行限制
             HTTPUtil.getCall(Constant.URL + "guess&uid=" + uid,new Callback() {
-
-
 
                 @Override
                 public void onFailure(Request request, IOException e) {
@@ -159,7 +155,6 @@ public class FragmentRecommend extends Fragment {
                             public void run() {
                                 updateListview();
 
-//
                                 // TODO: 2017/6/27 帖子是否分享判断
                             }
                         });
@@ -175,9 +170,6 @@ public class FragmentRecommend extends Fragment {
             recommendEmpty.setText("登录以便查看推荐内容");
             Log.d(TAG, "未登录状态");
         }
-
-
-        return view;
     }
 
     @Override
@@ -187,6 +179,15 @@ public class FragmentRecommend extends Fragment {
         ButterKnife.unbind(this);
     }
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+//        L.e("fragmentrecommned" + isVisibleToUser);
+        //在fragment可见时才加载数据 2017年7月4日 19:56:49
+        if(isVisibleToUser){
+            getData();
+        }
+        super.setUserVisibleHint(isVisibleToUser);
+    }
 
 
     @Override

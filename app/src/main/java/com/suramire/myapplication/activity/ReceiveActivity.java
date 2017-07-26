@@ -16,11 +16,12 @@ import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
+import com.suramire.myapplication.base.App;
 import com.suramire.myapplication.base.BaseActivity;
 import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.DateUtil;
-import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.GsonUtil;
+import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.L;
 import com.suramire.myapplication.util.SPUtils;
 import com.xmut.sc.entity.Receive;
@@ -30,7 +31,6 @@ import java.util.Date;
 import java.util.List;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static com.suramire.myapplication.util.Constant.URL;
@@ -52,19 +52,30 @@ public class ReceiveActivity extends BaseActivity {
     private List<Receive> receiveList;
     private int nid;
     private int uid;
+    private App mContext;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_receice);
-        ButterKnife.bind(this);
+
+
+
+
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.activity_receice;
+    }
+
+    @Override
+    protected void initView() {
+        mContext = App.getContext();
         listView.setEmptyView(receiveEmpty);
         nid = getIntent().getIntExtra("nid", 0);
-        uid = (int) SPUtils.get(this, "uid", 0);
+        uid = (int) SPUtils.get( "uid", 0);
         //根据nid查询该帖子的评论
         getReceive();
-
-
     }
 
 
@@ -109,7 +120,7 @@ public class ReceiveActivity extends BaseActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(ReceiveActivity.this, finalShow, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext, finalShow, Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -117,11 +128,11 @@ public class ReceiveActivity extends BaseActivity {
                 });
 
             }else {
-                Toast.makeText(this, "评论内容不能为空哦", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "评论内容不能为空哦", Toast.LENGTH_SHORT).show();
             }
         }else {
             // TODO: 2017/6/27 这里用弹窗的方式显示
-            Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, "请先登录", Toast.LENGTH_SHORT).show();
         }
     }
 

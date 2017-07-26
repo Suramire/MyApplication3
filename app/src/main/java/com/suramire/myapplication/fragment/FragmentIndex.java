@@ -1,10 +1,8 @@
 package com.suramire.myapplication.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
@@ -15,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,33 +25,29 @@ import com.classic.adapter.CommonRecyclerAdapter;
 import com.github.ksoichiro.android.observablescrollview.ObservableListView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
-import com.nineoldandroids.animation.ValueAnimator;
-import com.nineoldandroids.view.ViewHelper;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import com.suramire.myapplication.activity.NoteByTypeActivity;
 import com.suramire.myapplication.R;
+import com.suramire.myapplication.activity.NoteByTypeActivity;
 import com.suramire.myapplication.activity.NoteDetailActivity;
+import com.suramire.myapplication.base.App;
 import com.suramire.myapplication.entity.Type;
-import com.suramire.myapplication.util.Constant;
+import com.suramire.myapplication.mvp.BasePresenter;
+import com.suramire.myapplication.mvp.BaseView;
 import com.suramire.myapplication.util.GlideImageLoader;
-import com.suramire.myapplication.util.GsonUtil;
-import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.SPUtils;
 import com.xmut.sc.entity.Note;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.listener.OnBannerListener;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.suramire.myapplication.util.Constant.DELAY;
+import static com.suramire.myapplication.util.AnimationUtil.hide;
+import static com.suramire.myapplication.util.AnimationUtil.show;
+import static com.suramire.myapplication.util.Constant.currentCount;
 import static com.suramire.myapplication.util.Constant.indexCount;
-import static com.suramire.myapplication.util.Constant.isDestory;
 import static com.suramire.myapplication.util.Constant.notes;
+import static com.suramire.myapplication.util.L.e;
 
 /**
  * Created by Suramire on 2017/6/20.
@@ -63,7 +56,7 @@ import static com.suramire.myapplication.util.Constant.notes;
  * 下拉隐藏actionbar与底部导航按钮
  */
 
-public class FragmentIndex extends Fragment implements ObservableScrollViewCallbacks {
+public class FragmentIndex extends Fragment implements ObservableScrollViewCallbacks,BaseView {
 
     private CommonAdapter<Note> adapter;
     private ObservableListView listView;
@@ -84,99 +77,58 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
     private RecyclerView recyclerView;
     private int[] images;
     private List<Note> mNotes;
+    private View view;
+    private BasePresenter basePresenter;
+    private Context mContext;
+    private boolean isHide;
+
 
     // TODO: 2017/6/26 首页轮播图动态获取,没有则不显示
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_index, container, false);
+        if(view != null) {
+            return view;
+        }else{
+            view = inflater.inflate(R.layout.activity_index, container, false);
+            setupView();
+            uid = (int) SPUtils.get("uid", 0);
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            basePresenter.show("refresh&count="+ indexCount+"&uid="+uid);
+                        }
+                    }).start();
+                }
+            });
+
+            setupListView(swipeRefreshLayout);
+            setupBanner(headerBanner);
+            basePresenter = new BasePresenter(this);
+            basePresenter.show("index&uid="+uid);
+            return view;
+        }
+
+    }
+
+    private void setupView() {
+        mContext = App.getContext();
         activity = (AppCompatActivity) getActivity();
+
         headerBanner = View.inflate(activity, R.layout.header_banner,null);
-        images = new int[]{R.drawable.a4x, R.drawable.a4y, R.drawable.a4z, R.drawable.a5a, R.drawable.a5b, R.drawable.a5_};
         ab = activity.getSupportActionBar();
-        Log.d("FragmentIndex", "ab:" + ab);
-//        headerview = View.inflate(activity, R.layout.header_blank, null);
-        uid = (int) SPUtils.get(activity, "uid", 0);
+        images = new int[]{R.drawable.a4x, R.drawable.a4y, R.drawable.a4z, R.drawable.a5a, R.drawable.a5b, R.drawable.a5_};
         bottomnavigationview = (BottomNavigationView) activity.findViewById(R.id.bottomnavigationview);
         fab = (FloatingActionButton) activity.findViewById(R.id.fab);
         toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
         bottomlayout = (RelativeLayout) activity.findViewById(R.id.bottomlayout);
         swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getInitData("refresh&count="+ indexCount+"&uid="+uid);
-                    }
-                }).start();
-            }
-        });
         swipeRefreshLayout.setProgressViewOffset(true,0,160);//设置进度圈位置
-        setupListView(swipeRefreshLayout);
-        setupBanner(headerBanner);
-
-//        if((boolean) SPUtils.get(activity,"banner",true)){
-//
-//        }else {
-//            removeBanner(headerBanner);
-//
-//        }
-
-
-        //初次加载
-        getInitData("index");
-
-        return view;
     }
 
-    private void getInitData(String what) {
-        Log.d("FragmentIndex", "重新启动fragment时判断"+isDestory);
-        if(isDestory){
-            //如果重启应用之前被销毁则先加载销毁前的数据
-            updateListView(notes);
-            isDestory = false;
-        }else{
-            HTTPUtil.getCall(Constant.URL +what+"&uid="+uid,new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                    Log.d("FragmentIndex", "onFailure");
-                }
-                @Override
-                public void onResponse(Response response) throws IOException {
-                    Log.d("FragmentIndex", "onResponse");
-                    try {
-                        String string = response.body().string();
-                        mNotes = GsonUtil.jsonToList(string, Note.class);
-                        indexCount += mNotes.size();//记录帖子数
-                        final int mcount = mNotes.size();//本次刷新的数量
-                        if (mcount==0){
-                            SystemClock.sleep(1000);
-                            handler.sendEmptyMessage(mcount);//取消下拉进度圈
-                        }else {
-                            //保留已加载内容
-                            if(notes==null){
-                                notes = new ArrayList<Note>();
-                            }else{
-//                                Collections.reverse(mNotes);
-                                for(Note n:notes){
-                                    mNotes.add(n);
-                                }
-                            }
-                            notes = mNotes;
-                            SystemClock.sleep(1000);
-                            handler.sendEmptyMessage(mcount);//取消下拉进度圈
-                        }
-
-                    } catch (IOException e) {
-                        Toast.makeText(activity, "未发现新内容", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
-
-    }
 
     private void setupListView(SwipeRefreshLayout swipeRefreshLayout) {
         listView =  swipeRefreshLayout.findViewById(R.id.index_listview);
@@ -210,7 +162,6 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
                 });
             }
         };
-        swipeRefreshLayout.setRefreshing(false);//fixme 注销后重新启动应用第一次下拉进度圈不会消失
         listView.setAdapter(adapter);
     }
 
@@ -218,7 +169,8 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
 
     private void setupBanner(final View headerBanner) {
         listView.removeHeaderView(headerBanner);
-        Boolean show = (Boolean) SPUtils.get(activity, "banner", true);
+        Boolean show = (Boolean) SPUtils.get("banner", true);
+        e("banner show:" + show);
         banner = headerBanner.findViewById(R.id.banner);
         recyclerView = headerBanner.findViewById(R.id.listview_type);
         List<Type> types = new ArrayList<>();
@@ -237,7 +189,6 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
                 helper.setOnClickListener(R.id.img_type, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // TODO: 2017/6/28 这里跳转到对应分类的帖子
                         startActivity(new Intent(activity, NoteByTypeActivity.class).putExtra("index",position));
                     }
                 })
@@ -275,8 +226,6 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
                     .setOnBannerListener(new OnBannerListener() {
                         @Override
                         public void OnBannerClick(int position) {
-
-//                            Toast.makeText(getActivity(),"点击了第" +( position+1)+"张图片", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(activity,NoteDetailActivity.class).putExtra("note",notes.get(position)));
                         }
                     }).start();
@@ -285,23 +234,10 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
             banner.setVisibility(View.GONE);
         }
         listView.addHeaderView(headerBanner);
-//            bannerIsShow = true;
-//        if ((Boolean) SPUtils.get(activity,"banner",true)) {
-//
-//            bannerIsShow = true;
-//        }else{
-//            listView.removeHeaderView(headerBanner);
-//            bannerIsShow = false;
-//        }
 
-        // TODO: 2017/6/25 设置项加入 显示banner开关
 
     }
 
-//    public void removeBanner(View headerBanner){
-//        listView.removeHeaderView(headerBanner);
-//        bannerIsShow = false;
-//    }
 
 
     @Override
@@ -311,17 +247,8 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
 
     @Override
     public void onResume() {
-//        boolean banner = (boolean) SPUtils.get(activity, "banner", true);
-////        L.e("banner:"+banner+" bannerIsShow:"+bannerIsShow);
-//        if(banner&&!bannerIsShow){
-//            //之前没有banner
-//            setupBanner(headerBanner);
-//        }else if(!banner && bannerIsShow){
-////            之前有banner
-//            removeBanner(headerBanner);
-//        }
         setupBanner(headerBanner);
-
+        e("onResume f1");
         super.onResume();
     }
 
@@ -337,9 +264,6 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
 
     @Override
     public void onUpOrCancelMotionEvent(ScrollState scrollState) {
-
-
-
         if (activity == null) {
             return;
         }
@@ -347,85 +271,49 @@ public class FragmentIndex extends Fragment implements ObservableScrollViewCallb
             return;
         }
                 if (scrollState == ScrollState.UP) {
-            if (fab.isShown()) {
-//                listView.removeHeaderView(headerview);
+            if (!isHide) {
                 hide(toolbar, bottomlayout);
+                fab.hide();
+                isHide = true;
             }
 
         } else if (scrollState == ScrollState.DOWN) {
-            if (!fab.isShown()) {
-//                listView.addHeaderView(headerview);
+            if (isHide) {
                 show(toolbar, bottomlayout);
+                fab.show();
+                isHide = false;
             }
-
         }
     }
 
-    Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message message) {
-            if(swipeRefreshLayout.isRefreshing()){
-                swipeRefreshLayout.setRefreshing(false);
-            }
-            if(message.what>0){
-                Toast.makeText(activity,"发现"+message.what+"条内容",Toast.LENGTH_SHORT).show();
-                updateListView(notes);
-            }else{
-                Toast.makeText(activity,"未发现新内容",Toast.LENGTH_SHORT).show();
-            }
-            return false;
-        }
-    });
 
     @Override
     public void onDestroyView() {
         //在被销毁之前先保存已经加载的notes
-        Log.d("FragmentIndex", "onDestroyView");
-        isDestory = true;
+        e("f1 onDestroyView");
         super.onDestroyView();
     }
-    private void hide(final View top, final View bottom) {
-        fab.hide();
-        ValueAnimator animator = ValueAnimator.ofFloat(0, top.getHeight()).setDuration(DELAY);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                ViewHelper.setTranslationY(top, -value);
-            }
-        });
-        animator.start();
-        ValueAnimator animator2 = ValueAnimator.ofFloat(0, bottom.getHeight()).setDuration(DELAY);
-        animator2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                ViewHelper.setTranslationY(bottom, value);
-            }
-        });
-        animator2.start();
+
+
+    @Override
+    public void showLoading() {
+        swipeRefreshLayout.setRefreshing(true);
     }
 
-    private void show(final View top, final View bottom) {
-        fab.show();
-        ValueAnimator animator = ValueAnimator.ofFloat(top.getHeight(), 0).setDuration(DELAY);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                ViewHelper.setTranslationY(top, -value);
-            }
-        });
-        animator.start();
-        ValueAnimator animator2 = ValueAnimator.ofFloat(bottom.getHeight(), 0).setDuration(DELAY);
-        animator2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                ViewHelper.setTranslationY(bottom, value);
-            }
-        });
-        animator2.start();
+    @Override
+    public void cancelLoading() {
+        swipeRefreshLayout.setRefreshing(false);
     }
 
+    @Override
+    public void showSuccessful(Object data) {
+        List<Note> notes = (List<Note>) data;
+        Toast.makeText(mContext,"发现"+currentCount+"条内容",Toast.LENGTH_SHORT).show();
+        updateListView(notes);
+    }
+
+    @Override
+    public void showFail() {
+        Toast.makeText(mContext, "加载数据失败", Toast.LENGTH_SHORT).show();
+    }
 }

@@ -17,13 +17,13 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.suramire.myapplication.R;
+import com.suramire.myapplication.base.App;
 import com.suramire.myapplication.base.BaseActivity;
 import com.suramire.myapplication.service.PostService;
 import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.SPUtils;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static java.lang.Integer.parseInt;
@@ -50,17 +50,28 @@ public class SystemSettingsActivity extends BaseActivity {
     private Intent postIntent;
     public final static  int RESULTCODE = 0x10;
     private AlarmManager alarmManager;
+    private App mContext;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_systemsettings);
-        ButterKnife.bind(this);
 
+
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.activity_systemsettings;
+    }
+
+    @Override
+    protected void initView() {
+        mContext = App.getContext();
         notification.setChecked(Constant.isPostRunning);
-        iptextview.setText((String) SPUtils.get(this, "ip", "10.0.2.2"));
-        porttextview.setText((String) SPUtils.get(this, "port", "8080"));
-        sysBanner.setChecked((Boolean) SPUtils.get(this,"banner",true));
-        sysPostspace.setText((String)SPUtils.get(this,"space","30"));
+        iptextview.setText((String) SPUtils.get( "ip", "10.0.2.2"));
+        porttextview.setText((String) SPUtils.get("port", "8080"));
+        sysBanner.setChecked((Boolean) SPUtils.get("banner",true));
+        sysPostspace.setText((String)SPUtils.get("space","30"));
         postIntent = new Intent(this, PostService.class);
 
         postIntent.putExtra("space", parseInt(sysPostspace.getText().toString().trim()));
@@ -77,7 +88,7 @@ public class SystemSettingsActivity extends BaseActivity {
                     int space = parseInt(sysPostspace.getText().toString().trim());
 
                     if(space>0){
-                        Toast.makeText(SystemSettingsActivity.this, "已开启推送服务,推送间隔为" + space + "分钟", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "已开启推送服务,推送间隔为" + space + "分钟", Toast.LENGTH_SHORT).show();
 //                    L.e("开启推送 间隔:" + space);
                         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, SystemClock.currentThreadTimeMillis(), space*1000, operation);
                         Constant.isPostRunning = true;
@@ -85,7 +96,7 @@ public class SystemSettingsActivity extends BaseActivity {
 //                        finish();
                     }
                 } else {
-                    Toast.makeText(SystemSettingsActivity.this, "已关闭推送服务", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "已关闭推送服务", Toast.LENGTH_SHORT).show();
                     Constant.isPostRunning = false;
                     //取消定时推送服务
                     alarmManager.cancel(operation);
@@ -103,15 +114,15 @@ public class SystemSettingsActivity extends BaseActivity {
         String trim = iptextview.getText().toString().trim();
         String trim2 = porttextview.getText().toString().trim();
         if(TextUtils.isEmpty(trim1)|| TextUtils.isEmpty(trim)|| TextUtils.isEmpty(trim2)){
-            Toast.makeText(this, "选项不可为空", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, "选项不可为空", Toast.LENGTH_SHORT).show();
         }else{
             //保存ip
             try {
-                SPUtils.put(this, "ip", trim);
-                SPUtils.put(this, "port", trim2);
-                SPUtils.put(this, "banner", sysBanner.isChecked());
-                SPUtils.put(this,"space",trim1);
-                Toast.makeText(this, "修改成功", Toast.LENGTH_SHORT).show();
+                SPUtils.put("ip", trim);
+                SPUtils.put("port", trim2);
+                SPUtils.put("banner", sysBanner.isChecked());
+                SPUtils.put("space",trim1);
+                Toast.makeText(mContext, "修改成功", Toast.LENGTH_SHORT).show();
                 setResult(Constant.CHANGEUCCESS);
                 finish();
             } catch (Exception e) {

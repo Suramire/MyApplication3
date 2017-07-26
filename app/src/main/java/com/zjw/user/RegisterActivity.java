@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.widget.Button;
@@ -16,7 +15,6 @@ import com.suramire.myapplication.R;
 import com.suramire.myapplication.base.BaseActivity;
 import com.zjw.bean.UserData;
 import com.zjw.json.WriteJson;
-
 import com.zjw.web.Operaton;
 
 import java.util.ArrayList;
@@ -40,9 +38,17 @@ public class RegisterActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.activity_register;
+
+    }
+
+    @Override
+    protected void initView() {
         mAccount = (EditText) findViewById(R.id.register_edit_account);
         mPwd = (EditText) findViewById(R.id.register_edit_pwd);
         mrePwd = (EditText) findViewById(R.id.register_edit_repwd);
@@ -60,7 +66,6 @@ public class RegisterActivity extends BaseActivity {
 
         mSureButton.setOnClickListener(mListener); // 注册界面两个按钮的监听事件
         mCancelButton.setOnClickListener(mListener);
-
     }
 
     View.OnClickListener mListener = new View.OnClickListener() { // 不同按钮按下的监听事件选择
@@ -80,7 +85,7 @@ public class RegisterActivity extends BaseActivity {
 
         // 注册实现
         private void register_check() {
-            // TODO Auto-generated method stub
+
             if (isUserNameAndPwdValid()) {
                 dialog.show();
                 new Thread(new Runnable() {

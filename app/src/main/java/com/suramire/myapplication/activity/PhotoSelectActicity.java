@@ -15,6 +15,7 @@ import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.suramire.myapplication.R;
+import com.suramire.myapplication.base.App;
 import com.suramire.myapplication.util.Constant;
 import com.suramire.myapplication.util.FileUtil;
 import com.suramire.myapplication.util.HTTPUtil;
@@ -44,6 +45,7 @@ public class PhotoSelectActicity extends AppCompatActivity {
     private Bitmap bitmap;
     public static final int CODESUCCESS = 0x1;
     public static final int CODEFIAL = 0x2;
+    private App mContext;
 
 
     @Override
@@ -51,6 +53,7 @@ public class PhotoSelectActicity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photoselect);
         ButterKnife.bind(this);
+        mContext = App.getContext();
     }
 
 
@@ -87,45 +90,49 @@ public class PhotoSelectActicity extends AppCompatActivity {
                 break;
             case R.id.button10:
                 // TODO: 2017/6/27 如果用户选择了头像,则将头像发送给服务器
-                if(hasImg){
-                    String s = FileUtil.writeToSDCard(bitmap,Constant.userName+".png");//将图片存入sd卡获取图片保存的路径
-                    File file = new File(s);
-                    HTTPUtil.getPost(Constant.URL+"upload&uid="+ SPUtils.get(this,"uid",0), file, new Callback() {
-                        @Override
-                        public void onFailure(Request request, IOException e) {
-
-                        }
-
-                        @Override
-                        public void onResponse(Response response) throws IOException {
-                            String string = response.body().string();
-                            L.e("这里显示上传结果:" + string);
-                            if(string.equals("success")){
-                                //这里更新用户的头像
-                                // TODO: 2017/6/27 如果有本地图片则先读取本地图片
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(PhotoSelectActicity.this, "修改成功", Toast.LENGTH_SHORT).show();
-                                        setResult(CODESUCCESS);
-                                        finish();
-                                    }
-                                });
-
-                            }else{
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(PhotoSelectActicity.this, "修改失败", Toast.LENGTH_SHORT).show();
-                                        setResult(CODEFIAL);
-                                        finish();
-                                    }
-                                });
+                try {
+                    if(hasImg){
+                        String s = FileUtil.writeToSDCard(bitmap,Constant.userName+".png");//将图片存入sd卡获取图片保存的路径
+                        File file = new File(s);
+                        HTTPUtil.getPost(Constant.URL+"upload&uid="+ SPUtils.get("uid",0), file, new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
 
                             }
 
-                        }
-                    });
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                String string = response.body().string();
+                                L.e("这里显示上传结果:" + string);
+                                if(string.equals("success")){
+                                    //这里更新用户的头像
+                                    // TODO: 2017/6/27 如果有本地图片则先读取本地图片
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(mContext, "修改成功", Toast.LENGTH_SHORT).show();
+                                            setResult(CODESUCCESS);
+                                            finish();
+                                        }
+                                    });
+
+                                }else{
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(mContext, "修改失败", Toast.LENGTH_SHORT).show();
+                                            setResult(CODEFIAL);
+                                            finish();
+                                        }
+                                    });
+
+                                }
+
+                            }
+                        });
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(mContext, "发生错误:" + e, Toast.LENGTH_SHORT).show();
                 }
                 break;
         }

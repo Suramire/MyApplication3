@@ -1,7 +1,9 @@
 package com.suramire.myapplication;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -11,12 +13,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +36,7 @@ import com.suramire.myapplication.activity.PhotoSelectActicity;
 import com.suramire.myapplication.activity.SearchActivity;
 import com.suramire.myapplication.activity.SystemSettingsActivity;
 import com.suramire.myapplication.activity.UserReceive;
+import com.suramire.myapplication.base.App;
 import com.suramire.myapplication.fragment.FragmentIndex;
 import com.suramire.myapplication.fragment.FragmentNotification;
 import com.suramire.myapplication.fragment.FragmentRecommend;
@@ -41,11 +45,12 @@ import com.suramire.myapplication.util.GsonUtil;
 import com.suramire.myapplication.util.HTTPUtil;
 import com.suramire.myapplication.util.L;
 import com.suramire.myapplication.util.SPUtils;
+import com.suramire.myapplication.view.MyImageView;
 import com.suramire.myapplication.view.MyViewPager;
 import com.xmut.sc.entity.User;
 import com.zjw.user.LoginActivity;
+import com.zlw.NewNote;
 import com.zlw.PostedActivity;
-import com.zlw.Operation;
 import com.zxf.scode.Information;
 
 import java.io.IOException;
@@ -80,7 +85,8 @@ public class MainActivity extends AppCompatActivity
     private int uid;
     private int index;
     private int[] ids;
-    private SearchView searchView;
+    private ActionBar actionBar;
+    private Context mContext;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -92,20 +98,17 @@ public class MainActivity extends AppCompatActivity
         }
         else if(requestCode ==REQUESTCODE && resultCode ==Constant.UPDATESUCCESS){
             e("更新用户信息后重启activity,重新登录");
-            SPUtils.put(this,"uid",0);
-            Constant.isDestory = true;
+            SPUtils.put("uid",0);
             finish();
             startActivity(getIntent());
 
         }else if(requestCode ==REQUESTCODE && resultCode == Constant.LOGINSUCCESS){
             //登录成功 重启activity
-            Constant.isDestory = true;
             finish();
             startActivity(getIntent());
         }else if(requestCode ==REQUESTCODE && resultCode == Constant.CHANGEUCCESS){
-            Constant.isDestory = true;
-            finish();
-            startActivity(getIntent());
+//            finish();
+//            startActivity(getIntent());
         }
         else{
             e("返回结果为fail,什么都不做");
@@ -118,12 +121,13 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        setupActionBar();
+        mContext = App.getContext();
         ids = new int[]{R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications};
         //表示打开应用时该显示哪页 接收推送时值为2即显示通知页
-        L.e("viewpager下标:" + index);
-        setSupportActionBar(toolbar);
-        String ip =(String) SPUtils.get(this,"ip","10.0.2.2");
-        String port = (String) SPUtils.get(this,"port","8080");
+//        L.e("viewpager下标:" + index);
+        String ip =(String) SPUtils.get("ip","10.0.2.2");
+        String port = (String) SPUtils.get("port","8080");
         BASEURL ="http://"+ip+":"+port+"/";
         URL = BASEURL+"bbs/GetResult?do=";
         e("service ip:" + BASEURL);
@@ -135,7 +139,7 @@ public class MainActivity extends AppCompatActivity
         // TODO: 2017/6/27 添加网络连接判断
 //        SPUtils.put(this,"uid",1);
         //先判断是否登录
-        uid = (int) SPUtils.get(this, "uid", 0);
+        uid = (int) SPUtils.get( "uid", 0);
         if (uid > 0) {
             e("已登录@Main");
             //读取用户在线信息并显示
@@ -190,43 +194,7 @@ public class MainActivity extends AppCompatActivity
                                         }
                                     });
 
-//                            HTTPUtil.getCall(Constant.BASEURL + "bbs/upload/" + userImg, new Callback() {
-//                                @Override
-//                                public void onFailure(Request request, IOException e) {
-//
-//                                }
-//
-//                                @Override
-//                                public void onResponse(Response response) throws IOException {
-//                                    InputStream inputStream1 = response.body().byteStream();
-//                                    //FIXME 头像获取有问题
-//                                    L.e("获取的头像字节流:" + inputStream1);
-//                                    if(inputStream1!=null){
-//                                        //请求成功时
-//                                        File file = new File(Constant.PICTUREPATH,userImg);
-//                                        FileOutputStream fileOutputStream = new FileOutputStream(file);
-//                                        byte[] buffer = new byte[1024];
-//                                        int len =0;
-//                                        while ((len=inputStream1.read(buffer))!=-1){
-//                                            fileOutputStream.write(buffer,0,len);
-//                                        }
-//                                        fileOutputStream.flush();
-//                                        fileOutputStream.close();
-//                                        inputStream1.close();
-//                                        runOnUiThread(new Runnable() {
-//                                            @Override
-//                                            public void run() {
-//                                                Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH +userImg);
-////                                                L.e("读取本地图片 高度:"+bitmap.getHeight());
-//
-//                                                user_img.setImageBitmap(bitmap);
-//                                            }
-//                                        });
-//                                    }
-//
-//
-//                                }
-//                            });
+
                                 }else{
                                     e("该用户没有头像");
                                     Picasso.with(MainActivity.this)
@@ -234,10 +202,6 @@ public class MainActivity extends AppCompatActivity
                                             .resize(90,90)
                                             .centerCrop()
                                             .into(user_img);
-//                            Bitmap bitmap = BitmapFactory.decodeFile(Constant.PICTUREPATH + "default.png);" +
-//                                            "//todo 默认头像
-//                            user_img.setImageBitmap(bitmap);
-
                                 }
 
                             }
@@ -258,6 +222,8 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onResponse(Response response) throws IOException {
                     final String string = response.body().string();
+                    L.e("获取发帖数onResponsestring"+string);
+                    L.e("获取发帖数onResponsestring"+string.indexOf("splitzero"));
                     //这里获取登录用户的发帖数
                     runOnUiThread(new Runnable() {
                         @Override
@@ -292,17 +258,17 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 if(uid>0){
-                    startActivity(new Intent(MainActivity.this, Operation.class));
+                    startActivity(new Intent(MainActivity.this, NewNote.class));
                 }else{
-                    Toast.makeText(MainActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "请先登录", Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.setDrawerListener(toggle);
-        toggle.syncState();
+//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+//                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//        drawerLayout.setDrawerListener(toggle);
+//        toggle.syncState();
 
 // TODO: 2017/6/25 只查询分享的帖子
 
@@ -349,6 +315,26 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    private void setupActionBar() {
+        setSupportActionBar(toolbar);
+        actionBar = getSupportActionBar();
+        ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT, Gravity.CENTER);
+        View mActionBarView = LayoutInflater.from(this).inflate(R.layout.toolbar_title, null);
+        MyImageView imageView = (MyImageView) mActionBarView.findViewById(R.id.imageView9);
+        imageView.setImageResource(R.drawable.def);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawerLayout.openDrawer(navigationView);
+            }
+        });
+        actionBar.setCustomView(mActionBarView, layoutParams);
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setDisplayShowTitleEnabled(false);
+    }
+
     /**
      * 按返回键收起左边抽屉导航
      */
@@ -364,27 +350,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-//        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-//        searchView.setSelected(false);
-//        searchView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                startActivity(new Intent(MainActivity.this, SearchActivity.class));
-//            }
-//        });
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_search) {
             //跳转到搜索页
             startActivity(new Intent(MainActivity.this, SearchActivity.class));
@@ -409,7 +382,7 @@ public class MainActivity extends AppCompatActivity
             if(uid>0){
                 startActivity(new Intent(MainActivity.this, PostedActivity.class));
             }else{
-                Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "请先登录", Toast.LENGTH_SHORT).show();
             }
 //            Toast.makeText(this, "跳转到个人发表的帖子列表", Toast.LENGTH_SHORT).show();
 
@@ -419,7 +392,7 @@ public class MainActivity extends AppCompatActivity
             if(uid>0){
                 startActivity(new Intent(MainActivity.this, UserReceive.class));
             }else{
-                Toast.makeText(MainActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "请先登录", Toast.LENGTH_SHORT).show();
             }
         } else if (id == R.id.nav_history) {
 //            Toast.makeText(this, "这里跳转到历史记录", Toast.LENGTH_SHORT).show();
@@ -429,7 +402,7 @@ public class MainActivity extends AppCompatActivity
             if(uid>0){
                 startActivityForResult(new Intent(MainActivity.this, Information.class),MainActivity.REQUESTCODE);
             }else{
-                Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "请先登录", Toast.LENGTH_SHORT).show();
             }
 
         } else if (id == R.id.nav_systemsetting) {
@@ -437,10 +410,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_signout) {
             if(uid ==0){
                 //未登录
-                Toast.makeText(this, "还未登录", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "还未登录", Toast.LENGTH_SHORT).show();
             }else{
                 SPUtils.remove(this,"uid");
-                Constant.isDestory = true;
                 Intent intent = getIntent();
                 finish();
                 startActivity(intent);
@@ -463,5 +435,21 @@ public class MainActivity extends AppCompatActivity
         viewpager.setCurrentItem(index);
         bottomnavigationview.setSelectedItemId(ids[index]);
         super.onPostResume();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        e("onResume main");
+
+    }
+
+    // 检测网络
+    private boolean  checkNetwork() {
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connManager.getActiveNetworkInfo() != null) {
+            return connManager.getActiveNetworkInfo().isAvailable();
+        }
+        return false;
     }
 }
